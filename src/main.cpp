@@ -6,6 +6,8 @@
 #include "GL/glut.h"
 #include "GL/gl.h"
 
+#include "game.h"
+
 void drawTriangle()
 {
     glClearColor(0.4, 0.4, 0.4, 0.4);
