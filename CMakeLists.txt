@@ -4,6 +4,7 @@ project(BouncyBall-linux)
 set(CMAKE_CXX_STANDARD 17)
 add_executable(BouncyBall
         src/main.cpp
+
         src/ball.cpp
         src/block.cpp
         src/drawable.cpp
@@ -15,6 +16,7 @@ add_executable(BouncyBall
         src/player.cpp
         src/spike_block.cpp
         src/stone_block.cpp
+
         include/ball.h
         include/block.h
         include/drawable.h
@@ -29,5 +31,8 @@ add_executable(BouncyBall
         )
 
 target_include_directories(BouncyBall PUBLIC include/)
-target_link_libraries(BouncyBall -lglut)
-target_link_libraries(BouncyBall -lGL)
+target_link_libraries(BouncyBall glfw)
+target_link_libraries(BouncyBall GLEW)
+target_link_libraries(BouncyBall GLU)
+target_link_libraries(BouncyBall GL)
+target_link_libraries(BouncyBall SOIL)

@@ -14,14 +14,15 @@ public:
 	
 	bool initFirst();
 	bool init(int lvlNumber, Level& lvl);
-	void play(void);
-	void calcKollisionen();
+	void playFrame(GLfloat time_difference);
+	void calcCollisions();
 	void doMovement();
 	void doAnimations();
 	void finished(void);
 	void loose(void);
 	void win(void);
 	bool isWon();
+    bool isDone();
 	void resetLvl();
 	void smileyCatched(void);
 
@@ -56,10 +57,6 @@ public:
 	void setPause(bool pause);
 	bool isPause(void);
 
-	void setFullscreen(bool fullscreen);
-	void toggleFullscreen(void);
-	bool isFullscreen(void);
-
 	void setFont(GLuint font);
 	GLuint getFont();
 	void print(const char *fmt, GLfloat x, GLfloat y, ...);
@@ -82,15 +79,15 @@ private:
 	//frame height in pixel
 	int frame_height;
 
-	//flag if player wants to accelerate in the left directino
+	//flag if player wants to accelerate in the left direction
 	bool move_left;
-	//flag if player watns to accelerate in the right directin
+	//flag if player wants to accelerate in the right direction
 	bool move_right;
 	//flag if player wants to jump
 	bool jump;
 
 	GLfloat jump_speed;
-	//acceleratin of the player (when player wants to acceleraten), in units/s�
+	//acceleration of the player (when player wants to accelerate), in units/s²
 	GLfloat acceleration;
 	//acceleration of the player (when ball rolls on the floor)
 	GLfloat acceleration_ground;
@@ -104,9 +101,9 @@ private:
 
 	//the time since the last calculations cycle
 	GLfloat time_difference;
-	//allgemeiner timer
+	//common timer
 	GLfloat counter;
-	//gesammtzeit aller lvls
+    //time total of all levels
 	GLfloat total_time;
 	//death counter
 	int deaths;
