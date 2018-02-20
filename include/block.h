@@ -1,6 +1,8 @@
 #ifndef _BLOCK_H_
 #define _BLOCK_H_
 
+#include <array>
+
 #include "ball.h"
 #include "moveable.h"
 
@@ -47,6 +49,7 @@ public:
 	//returns the reflectionkoefizient (y direction)
 	GLfloat getReflectionY();
 protected:
+	void genVertexBufferData();
 	//width of the block
 	GLfloat width;
 	//height of the block
@@ -58,6 +61,9 @@ protected:
 	GLfloat reflection_x;
 	//reflectionkoefizient (y direction)
 	GLfloat reflection_y;
+
+	std::array<GLfloat, 6*2*3> vertexBufferData;
+	std::array<GLfloat, 6*2*2> uvBufferData;
 
 	//indicates in which area of the block is a kollision (top, bottom, corner...)
 	HittingType kollisionsType;

@@ -15,7 +15,7 @@ void GoodSmiley::doKollision(Ball& object){
 	if(object.getClass() == BALL_PLAYER){
 		death();
 		extern Game game;
-		game.smileyCatched();
+		game.catchSmiley();
 	}
 }
 /*

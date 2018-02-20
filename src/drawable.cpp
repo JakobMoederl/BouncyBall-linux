@@ -12,7 +12,6 @@ Drawable::Drawable()
 //destruktor
 Drawable::~Drawable(void)
 {
-	
 }
 
 GLfloat Drawable::getX(void){

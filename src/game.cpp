@@ -317,7 +317,7 @@ void Game::win(void) {
 }
 
 //should be called when a player catches up a smiley
-void Game::smileyCatched(void) {
+void Game::catchSmiley(void) {
     extern Game game;
     if (getLvl().getActiveSmileys() == 0) {
         game.win();
@@ -435,7 +435,7 @@ void Game::draw(void) {
     }
 
     glColor3f(1.0f, 1.0f, 1.0f);
-    drawInterface();
+    //drawInterface();
 
 }
 
@@ -716,6 +716,10 @@ bool Game::isWon() {
 
 bool Game::isDone() {
     return done;
+}
+
+void Game::setDone(bool done){
+    this->done = done;
 }
 
 void Game::setJumpSpeed(GLfloat jump_speed) {

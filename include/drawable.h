@@ -1,6 +1,7 @@
 #ifndef _DRAWABLE_H_
 #define _DRAWABLE_H_
 
+#include <stdlib.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
 
@@ -45,7 +46,19 @@ protected:
 	//falg which indicats if the object is activated or not
 	bool active;
 
-	//texture
+
+    //vertexes array to draw.
+	GLuint vertexArraySize;
+    GLuint vertexArrayID;
+
+	//uv coordinates buffer (texture)
+	GLuint uvArraySize;
+	GLuint uvArrayID;
+
+	//model position matrix (rotation and translation relative to world zero)
+	GLuint Model;
+
+	//texture ID
 	GLuint texture;
 };
 

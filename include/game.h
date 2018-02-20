@@ -22,9 +22,8 @@ public:
 	void loose(void);
 	void win(void);
 	bool isWon();
-    bool isDone();
 	void resetLvl();
-	void smileyCatched(void);
+	void catchSmiley(void);
 
 	void draw();
 	void drawInterface();
@@ -56,6 +55,9 @@ public:
 
 	void setPause(bool pause);
 	bool isPause(void);
+
+	void setDone(bool done);
+	bool isDone();
 
 	void setFont(GLuint font);
 	GLuint getFont();

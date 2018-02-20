@@ -7,12 +7,15 @@
 //Standartkonstrucktor
 Block::Block(void)
 {
+	vertexArraySize=6*2*3; //6 sides, with two triangles each with 3 vertexes per triangle
+
 	width = 1;
 	height = 1;
 	kollisionsType = HT_NO_KOLLISION;
 	reflection_x = 1.0f;
 	reflection_y = 1.0f;
 	depth = 1;
+	genVertexBufferData();
 }
 
 //destrucktor
@@ -27,37 +30,106 @@ void Block::draw(){
 	}
 	extern Game game;
 	glBindTexture(GL_TEXTURE_2D,texture);
-	glBegin(GL_QUADS);
-		glTexCoord2f(0.0f, 0.0f); glVertex3f(x, y + height, (GLfloat)layer);					// Top Left
-		glTexCoord2f(width, 0.0f); glVertex3f(x + width, y + height, (GLfloat)layer);					// Top Right
-		glTexCoord2f(width, height); glVertex3f(x + width, y, (GLfloat)layer);					// Bottom Right
-		glTexCoord2f(0.0f, height); glVertex3f( x, y, (GLfloat)layer);					// Bottom Left
-		
-		glTexCoord2f(0.0f, 0.0f); glVertex3f(x, y + height, (GLfloat)layer - depth);
-		glTexCoord2f(width, 0.0f); glVertex3f(x + width, y + height, (GLfloat)layer - depth);
-		glTexCoord2f(width, height); glVertex3f(x + width, y, (GLfloat)layer - depth);
-		glTexCoord2f(0.0f, height);	glVertex3f(x, y, (GLfloat)layer - depth);
-		
-		glTexCoord2f(0.0f, 0.0f); glVertex3f( x, y + height, (GLfloat)layer - depth);
-		glTexCoord2f(depth, 0.0f); glVertex3f( x, y + height, (GLfloat)layer);
-		glTexCoord2f(depth, height); glVertex3f( x, y, (GLfloat)layer);
-		glTexCoord2f(0.0f, height); glVertex3f( x,  y, (GLfloat)layer - depth);
-		
-		glTexCoord2f(0.0f, 0.0f); glVertex3f(x + width, y + height, (GLfloat)layer - depth);
-		glTexCoord2f(depth, 0.0f); glVertex3f(x + width, y + height, (GLfloat)layer);
-		glTexCoord2f(depth, height); glVertex3f(x + width,  y, (GLfloat)layer);
-		glTexCoord2f(0.0f, height); glVertex3f(x + width,  y, (GLfloat)layer - depth);
-		
-		glTexCoord2f(0.0f, 0.0f); glVertex3f( x, y + height, (GLfloat)layer);
-		glTexCoord2f(width, 0.0f); glVertex3f( x + width, y + height, (GLfloat)layer);
-		glTexCoord2f(width, depth); glVertex3f( x + width, y + height, (GLfloat)layer - depth);
-		glTexCoord2f(0.0f, depth); glVertex3f( x, y + height, (GLfloat)layer - depth);
 
-		glTexCoord2f(0.0f, 0.0f); glVertex3f( x, y, (GLfloat)layer);
-		glTexCoord2f(width, 0.0f); glVertex3f( x + width, y, (GLfloat)layer);
-		glTexCoord2f(width, depth); glVertex3f( x + width, y, (GLfloat)layer - depth);
-		glTexCoord2f(0.0f, depth); glVertex3f( x, y, (GLfloat)layer - depth);
-	glEnd();
+}
+
+void Block::genVertexBufferData() {
+	vertexBufferData={
+			//front side
+			0, 0, 0,
+			width, height, 0,
+			0, height, 0,
+			0, 0, 0,
+			width, 0, 0,
+			width, height, 0,
+			//left side
+			width, 0, 0,
+			width, height, depth,
+			width, height, 0,
+			width, 0, 0,
+			width, 0, depth,
+			width, height, depth,
+			//back side
+			width, 0, depth,
+			0, height, depth,
+			width, height, depth,
+			width, 0, depth,
+			0, 0, depth,
+			0, height, depth,
+			//right side
+			0, 0, depth,
+			0, height, 0,
+			0, height, depth,
+			0, 0, depth,
+			0, 0, 0,
+			0, height, 0,
+			//top side
+			0, height, 0,
+			width, height, depth,
+			0, height, depth,
+			0, height, 0,
+			width, height, 0,
+			width, height, depth,
+			//bottom side
+			0, 0, depth,
+			width, 0, 0,
+			0, 0, 0,
+			0, 0, depth,
+			width, 0, depth,
+			width, 0, 0
+			};
+
+	uvBufferData={
+			0, 0,
+			width, height,
+			0, height,
+			0, 0,
+			width, 0,
+			width, height,
+			//left side
+			width, 0,
+			width, height,
+			width, height,
+			width, 0,
+			width, 0,
+			width, height,
+			//back side
+			width, 0,
+			0, height,
+			width, height,
+			width, 0,
+			0, 0,
+			0, height,
+			//right side
+			0, 0,
+			0, height,
+			0, height,
+			0, 0,
+			0, 0,
+			0, height,
+			//top side
+			0, height,
+			width, height,
+			0, height,
+			0, height,
+			width, height,
+			width, height,
+			//bottom side
+			0, 0,
+			width, 0,
+			0, 0,
+			0, 0,
+			width, 0,
+			width, 0,
+	};
+
+    glGenBuffers(1, &vertexArrayID);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexArrayID);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertexBufferData), vertexBufferData, GL_STATIC_DRAW);
+
+    glGenBuffers(1, &uvArrayID);
+    glBindBuffer(GL_ARRAY_BUFFER, uvArrayID);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(uvBufferData), uvBufferData, GL_STATIC_DRAW);
 }
 
 //returns true if there is any kollision (if so the kollisions type value is set)
