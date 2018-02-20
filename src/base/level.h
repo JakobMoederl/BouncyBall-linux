@@ -2,11 +2,11 @@
 #define _LEVEL_H_
 
 #include <fstream>
-#include "stone_block.h"
-#include "spike_block.h"
-#include "player.h"
-#include "enemy.h"
-#include "good_smiley.h"
+#include "../block/stone_block.h"
+#include "../block/spike_block.h"
+#include "../ball/player.h"
+#include "../ball/enemy.h"
+#include "../ball/good_smiley.h"
 
 using namespace std;
 

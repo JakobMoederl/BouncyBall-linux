@@ -1,7 +1,7 @@
-#include "moveable.h"
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+
+#include "moveable.h"
 
 Moveable::Moveable(void)
 {
@@ -17,33 +17,33 @@ Moveable::~Moveable(void)
 //moves the object depending on the time since the last move
 void Moveable::move(GLfloat time){
 	setSpeed(speed + acceleration*time);
-	setTranslation(glm::translate(translation, speed*time));
+	setPosition(getPosition() + speed*time);
 }
 
-glm::vec3 Moveable::getSpeed()
+const glm::vec3 & Moveable::getSpeed() const
 {
     return speed;
 }
 //Sets the x speed, if the x speed is greater then the max speed value it is set to max speed value
-void Moveable::setSpeed(glm::vec3 speed)
+void Moveable::setSpeed(const glm::vec3 & speed)
 {
 	this->speed=glm::clamp(speed, speedMax, -speedMax); //keep speed in bounds
 }
 
-glm::vec3 Moveable::getAcceleration() {
+const glm::vec3 & Moveable::getAcceleration() const{
     return this->acceleration;
 }
 //Sets the y speed, if the y speed is greater then the max speed value it is set to max speed value
-void Moveable::setAcceleration(glm::vec3 acceleration)
+void Moveable::setAcceleration(const glm::vec3 & acceleration)
 {
 	this->acceleration = acceleration;
 }
 
-glm::vec3 Moveable::getSpeedMax()
+const glm::vec3 & Moveable::getSpeedMax() const
 {
     return this->speedMax;
 }
-void Moveable::setSpeedMax(glm::vec3 speedMax)
+void Moveable::setSpeedMax(const glm::vec3 & speedMax)
 {
 	this->speedMax = speedMax;
 }

@@ -3,16 +3,15 @@
 #include <cstdio>
 #include <array>
 
-#include <glm/gtc/matrix_transform.hpp>
-
 // Include GLEW
 #include <GL/glew.h>
 
 // Include GLFW
 #include <GLFW/glfw3.h>
-GLFWwindow* window;
 
-#include <shader.h>
+#include <glm/gtc/matrix_transform.hpp>
+
+#include "base/shader.h"
 
 int main( void )
 {
@@ -31,7 +30,7 @@ int main( void )
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Open a window and create its OpenGL context
-	window = glfwCreateWindow( 1024, 768, "Tutorial 02 - Red triangle", NULL, NULL);
+	GLFWwindow *window = glfwCreateWindow( 1024, 768, "Tutorial 02 - Red triangle", NULL, NULL);
 	if( window == NULL ){
 		fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
 		getchar();
@@ -54,6 +53,12 @@ int main( void )
 
 	// Dark blue background
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+
+	// Enable depth test
+	glEnable(GL_DEPTH_TEST);
+	// Accept fragment if it closer to the camera than the former one
+	glDepthFunc(GL_LESS);
+
 
 	GLuint vertexArrayID;
 	glGenVertexArrays(1, &vertexArrayID);

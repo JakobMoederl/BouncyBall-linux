@@ -1,6 +1,6 @@
 #include "spike_block.h"
 
-#include "game.h"
+#include "../base/game.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
 SpikeBlock::SpikeBlock(void)

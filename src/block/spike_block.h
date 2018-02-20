@@ -2,7 +2,7 @@
 #define _SPIKEBLOCK_H_
 #include "block.h"
 
-#include "ball.h"
+#include "../ball/ball.h"
 class SpikeBlock : public Block
 {
 public:

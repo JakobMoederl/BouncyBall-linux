@@ -2,7 +2,7 @@
 
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include "game.h"
+#include "../base/game.h"
 
 StoneBlock::StoneBlock(void)
 {

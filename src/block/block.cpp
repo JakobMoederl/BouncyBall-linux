@@ -1,8 +1,5 @@
+#include <GL/glew.h>
 #include "block.h"
-
-#include <math.h>
-#include "ball.h"
-#include "game.h"
 
 //Standartkonstrucktor
 Block::Block(void)
@@ -11,29 +8,80 @@ Block::Block(void)
 
 	width = 1;
 	height = 1;
-	kollisionsType = HT_NO_KOLLISION;
-	reflection_x = 1.0f;
-	reflection_y = 1.0f;
-	depth = 1;
+    depth = 1;
+
+	reflection = glm::vec3(1.0f);
+
+	glGenVertexArrays(1, &vertexArrayID);
+	glGenVertexArrays(1, &uvArrayID);
+
+	glGenBuffers(1, &vertexBuffer);
+	glGenBuffers(1, &uvBuffer);
 	genVertexBufferData();
 }
 
 //destrucktor
 Block::~Block(void)
 {
+	glDeleteBuffers(1, &vertexBuffer);
+	glDeleteBuffers(1, &uvBuffer);
+
+	glDeleteVertexArrays(1, &vertexArrayID);
+	glDeleteVertexArrays(1, &uvArrayID);
 }
 
 //draws the block
-void Block::draw(){
+void Block::draw(const glm::mat4 & view, const glm::mat4 & projection){
 	if(!active){
 		return;
 	}
-	extern Game game;
-	glBindTexture(GL_TEXTURE_2D,texture);
+    this->mvp = projection * view * getModel();
+    // Send our transformation to the currently bound shader,
+    // in the "MVP" uniform
+    glUniformMatrix4fv(matrixID, 1, GL_FALSE, &mvp[0][0]);
 
+    // Bind our texture in Texture Unit 0
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    // Set our "myTextureSampler" sampler to use Texture Unit 0
+    glUniform1i(textureID, 0);
+
+    // 1rst attribute buffer : vertices
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+    glVertexAttribPointer(
+            0,                  // attribute. No particular reason for 0, but must match the layout in the shader.
+            3,                  // size
+            GL_FLOAT,           // type
+            GL_FALSE,           // normalized?
+            0,                  // stride
+            (void*)0            // array buffer offset
+    );
+
+    // 2nd attribute buffer : UVs
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
+    glVertexAttribPointer(
+            1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
+            2,                                // size : U+V => 2
+            GL_FLOAT,                         // type
+            GL_FALSE,                         // normalized?
+            0,                                // stride
+            (void*)0                          // array buffer offset
+    );
+
+    // Draw the triangle !
+    glDrawArrays(GL_TRIANGLES, 0, vertexArraySize); // 12*3 indices starting at 0 -> 12 triangles
+
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
 }
 
 void Block::genVertexBufferData() {
+
+
+	glBindVertexArray(vertexArrayID);
+
 	vertexBufferData={
 			//front side
 			0, 0, 0,
@@ -79,6 +127,12 @@ void Block::genVertexBufferData() {
 			width, 0, 0
 			};
 
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexBufferData), &vertexBufferData[0], GL_STATIC_DRAW);
+
+
+	glBindVertexArray(uvArrayID);
+
 	uvBufferData={
 			0, 0,
 			width, height,
@@ -123,15 +177,24 @@ void Block::genVertexBufferData() {
 			width, 0,
 	};
 
-    glGenBuffers(1, &vertexArrayID);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexArrayID);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertexBufferData), vertexBufferData, GL_STATIC_DRAW);
-
-    glGenBuffers(1, &uvArrayID);
-    glBindBuffer(GL_ARRAY_BUFFER, uvArrayID);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(uvBufferData), uvBufferData, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(uvBufferData), &uvBufferData[0], GL_STATIC_DRAW);
 }
 
+bool Block::checkCollision(const Ball & object) const{
+    //p = distance between center of ball and box
+    static glm::vec3 p = object.getCenter() - this->getCenter();
+    //p = closest point of box to center of ball (relative to box center)
+    p = glm::clamp(p, -glm::vec3(width, height, depth)/2.0f, glm::vec3(width, height, depth)/2.0f);
+    //p = vector between closest point and center of ball
+	p = (object.getCenter() - (this->getCenter() + p));
+	//calculate distance between ball and the closest point;
+    static GLfloat distance = glm::length(p);
+    //if the distance is smaller than the radius of the ball we have a collision
+    return distance < object.getRadius();
+}
+
+/*
 //returns true if there is any kollision (if so the kollisions type value is set)
 bool Block::getKollisionEdge(Ball& object){
 	if(!(active && object.isActive())){
@@ -190,55 +253,53 @@ bool Block::getKollisionCorner(Ball& object){
 	}
 	return false;
 }
+ */
+
+inline const glm::vec3 & Block::getCenter() const {
+    return (this->posVec + glm::vec3(width, height, depth)/2.0f);
+}
 
 //Sets the width od the block
-void Block::setWidth(GLfloat width){
+void Block::setWidth(const GLfloat width){
 	this->width = width;
+	genVertexBufferData();
 }
 
 //Sets the height of the block
-void Block::setHeight(GLfloat height){
+void Block::setHeight(const GLfloat height){
 	this->height = height;
+	genVertexBufferData();
 }
 
 //Sets the height of the block
-void Block::setDepth(GLfloat depth){
+void Block::setDepth(const GLfloat depth){
 	this->depth = depth;
+	genVertexBufferData();
 }
 
-//setst the reflection if a ball bounces against the vertical outlines of the block, default is 1)
-void Block::setReflectionX(GLfloat reflection_x){
-	this->reflection_x = reflection_x;
-}
-
-//setst the reflection if a ball bounces against the vertical outlines of the block, default is 1)
-void Block::setReflectionY(GLfloat reflection_y){
-	this->reflection_y = reflection_y;
+void Block::setReflection(const glm::vec3 &reflection)
+{
+	Block::reflection = reflection;
 }
 
 //returns the width of the block
-GLfloat Block::getWidth(){
+GLfloat Block::getWidth() const
+{
 	return width;
 }
 
-GLfloat Block::getHeight(){
+GLfloat Block::getHeight() const
+{
 	return height;
 }
 
-GLfloat Block::getDepth(){
+GLfloat Block::getDepth() const
+{
 	return depth;
 }
 
-GLfloat Block::getReflectionX(){
-	return reflection_x;
+const glm::vec3 & Block::getReflection() const
+{
+	return reflection;
 }
-
-GLfloat Block::getReflectionY(){
-	return reflection_y;
-}
-
-HittingType Block::getKollisionType(){
-	return kollisionsType;
-}
-
 

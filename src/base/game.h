@@ -2,7 +2,7 @@
 #define _GAME_H_
 
 #include "level.h"
-#include "player.h"
+#include "../ball/player.h"
 
 class Game
 {

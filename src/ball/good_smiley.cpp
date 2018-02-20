@@ -1,5 +1,5 @@
 #include "good_smiley.h"
-#include "game.h"
+#include "../base/game.h"
 
 GoodSmiley::GoodSmiley(void)
 {
