@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
+#include <glm/glm.hpp>
 
 class Drawable
 {
@@ -14,49 +15,43 @@ public:
 	//abstract method to draw the object
 	virtual void draw() = 0;
 
-	//returns the x value of the object
-	GLfloat getX();
-	//returns the y value of the object
-	GLfloat getY();
-	//returns the layer (z value, low is in front, hight means in the background)
-	GLfloat getLayer();
-	//returns the texture (main texture, if the objects needs more textures it has to store them by itself)
+    //calculate and return the model matrix
+    glm::mat4 getModel();
+    //translation matrix getter and setter
+    glm::mat4 getTranslation();
+    void setTranslation(glm::mat4 trans);
+    //rotation matrix getter and setter
+    glm::mat4 getRotation();
+    void setRotation(glm::mat4 rot);
+    //scaling matrix getter and setter
+    glm::mat4 getScaling();
+    void setScaling(glm::mat4 scale);
+
+
 	GLuint getTexture(void);
+    void setTexture(GLuint texture);
+
 	//returns true if the object is activated
 	bool isActive(void);
-
-	//sets the x value of the object
-	virtual void setX(GLfloat x);
-	//sets the y value of the object
-	virtual void setY(GLfloat y);
-	//sets the layer (z value) of the object
-	void setLayer(GLfloat layer);
-	//sets the texture
-	void setTexture(GLuint texture);
 	//sets if the object is activated or not
 	void setActive(bool active);
 protected:
-	// x value of the object
-	GLfloat x;
-	//y value of the object
-	GLfloat y;
-	//z value (layer) of the object
-	GLfloat layer;
-
-	//falg which indicats if the object is activated or not
+    glm::mat4 translation;
+    glm::mat4 rotation;
+    glm::mat4 scaling;
+	//flag which indicates if the object is activated or not
 	bool active;
 
 
     //vertexes array to draw.
 	GLuint vertexArraySize;
     GLuint vertexArrayID;
+    GLuint vertexBuffer;
 
 	//uv coordinates buffer (texture)
 	GLuint uvArraySize;
 	GLuint uvArrayID;
-
-	//model position matrix (rotation and translation relative to world zero)
-	GLuint Model;
+    GLuint uvBuffer;
 
 	//texture ID
 	GLuint texture;

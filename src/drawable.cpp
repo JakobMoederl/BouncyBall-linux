@@ -1,11 +1,14 @@
 #include "drawable.h"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 //standerd konstruktor
 Drawable::Drawable()
 {
-	x = 0.0f;
-	y = 0.0f;
-	layer = -10;
+	translation = glm::translate(glm::mat4(1.0), glm::vec3(0.0f));
+    rotation = glm::rotate(glm::mat4(1.0), 0.0f, glm::vec3(0.0f));
+    scaling = glm::scale(glm::mat4(1.0), glm::vec3(1.0));
 	active = true;
 }
 
@@ -14,16 +17,32 @@ Drawable::~Drawable(void)
 {
 }
 
-GLfloat Drawable::getX(void){
-	return x;
-}
-GLfloat Drawable::getY(void){
-	return y;
+glm::mat4 Drawable::getModel(){
+    return translation * rotation * scaling;
 }
 
-//returns the drawing layer (disabled)
-GLfloat Drawable::getLayer(void){
-	return -layer;
+glm::mat4 Drawable::getTranslation() {
+    return translation;
+}
+
+void Drawable::setTranslation(glm::mat4 trans) {
+    this->translation = trans;
+}
+
+glm::mat4 Drawable::getRotation() {
+    return this->rotation;
+}
+
+void Drawable::setRotation(glm::mat4 rot) {
+    this->rotation = rot;
+}
+
+glm::mat4 Drawable::getScaling() {
+    return this->scaling;
+}
+
+void Drawable::setScaling(glm::mat4 scale) {
+    this->scaling = scale;
 }
 
 //returns if the object is active
@@ -31,23 +50,14 @@ bool Drawable::isActive(){
 	return active;
 }
 
+void Drawable::setActive(bool active){
+    this->active = active;
+}
+
+
 GLuint Drawable::getTexture(void)
 {
 	return texture;
-}
-
-void Drawable::setX(GLfloat x){
-	this->x = x;
-}
-void Drawable::setY(GLfloat y){
-	this->y = y;
-}
-void Drawable::setLayer(GLfloat layer){
-	this->layer = -layer;
-}
-
-void Drawable::setActive(bool active){
-	this->active = active;
 }
 
 void Drawable::setTexture(GLuint texture)

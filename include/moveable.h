@@ -1,6 +1,8 @@
 #ifndef _MOVEABLE_H_
 #define _MOVEABLE_H_
 
+#include <glm/glm.hpp>
+
 #include "drawable.h"
 class Moveable : public Drawable
 {
@@ -8,35 +10,24 @@ public:
 	Moveable(void);
 	~Moveable(void);
 
-	//moves the object deping on the time difference
-	virtual void move(GLfloat time);
+	//moves the object depending on the time difference
+	void move(GLfloat time);
 
 	//sets the speed in x direction
-	void setSpeedX(GLfloat speedX);
-	//sets the speed in y direction
-	void setSpeedY(GLfloat speedY);
+    glm::vec3 getSpeed();
+	void setSpeed(glm::vec3 speed);
 	//sets the maximum speed in x direction
-	void setSpeedMaxX(GLfloat speedMaxX);
-	//sets the maximum speed in x direction
-	void setSpeedMaxY(GLfloat speedMaxY);
-	
-	//returns the speed in x direction
-	GLfloat getSpeedX();
-	//returns the speed in y direction
-	GLfloat getSpeedY();
-	//returns the maximum speed (x direction)
-	GLfloat getSpeedMaxX();
-	//returns the maximum speed (y direction)
-	GLfloat getSpeedMaxY();
+    glm::vec3 getSpeedMax();
+	void setSpeedMax(glm::vec3 speedMax);
+	//sets the acceleration
+    glm::vec3 getAcceleration();
+	void setAcceleration(glm::vec3 acceleration);
+
+
 protected:
-	//speed in x direction
-	GLfloat speed_x;
-	//speed in y direction
-	GLfloat speed_y;
-	//maximum speed in x direction
-	GLfloat speed_max_x;
-	//maximum speed in y direction
-	GLfloat speed_max_y;
+	glm::vec3 speed;
+	glm::vec3 speedMax;
+	glm::vec3 acceleration;
 	
 };
 

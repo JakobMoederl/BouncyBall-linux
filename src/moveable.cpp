@@ -1,11 +1,12 @@
 #include "moveable.h"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 Moveable::Moveable(void)
 {
-	speed_x = 0;
-	speed_y = 0;
-	speed_max_x = 10;
-	speed_max_y = 10;
+	this->speed={0,0,0};
+	this->speedMax={10,10,10};
 }
 
 
@@ -15,58 +16,34 @@ Moveable::~Moveable(void)
 
 //moves the object depending on the time since the last move
 void Moveable::move(GLfloat time){
-	x += (time*speed_x);
-	y += (time*speed_y);
+	setSpeed(speed + acceleration*time);
+	setTranslation(glm::translate(translation, speed*time));
 }
 
+glm::vec3 Moveable::getSpeed()
+{
+    return speed;
+}
 //Sets the x speed, if the x speed is greater then the max speed value it is set to max speed value
-void Moveable::setSpeedX(GLfloat speedX)
+void Moveable::setSpeed(glm::vec3 speed)
 {
-	if(speedX > speed_max_x){
-		speed_x = speed_max_x;
-	} else if(speedX < -speed_max_x){
-		speed_x = -speed_max_x;
-	} else {
-		speed_x = speedX;
-	}
+	this->speed=glm::clamp(speed, speedMax, -speedMax); //keep speed in bounds
 }
 
+glm::vec3 Moveable::getAcceleration() {
+    return this->acceleration;
+}
 //Sets the y speed, if the y speed is greater then the max speed value it is set to max speed value
-void Moveable::setSpeedY(GLfloat speedY)
+void Moveable::setAcceleration(glm::vec3 acceleration)
 {
-	if(speedY > speed_max_y){
-		speed_y = speed_max_y;
-	} else if(speedY < -speed_max_y){
-		speed_y = -speed_max_y;
-	} else {
-		speed_y = speedY;
-	}
+	this->acceleration = acceleration;
 }
 
-
-void Moveable::setSpeedMaxX(GLfloat speedMaxX)
+glm::vec3 Moveable::getSpeedMax()
 {
-	speed_max_x = speedMaxX;
+    return this->speedMax;
 }
-
-
-void Moveable::setSpeedMaxY(GLfloat speedMaxY)
+void Moveable::setSpeedMax(glm::vec3 speedMax)
 {
-	speed_max_y = speedMaxY;
-}
-
-GLfloat Moveable::getSpeedX(){
-	return speed_x;
-}
-
-GLfloat Moveable::getSpeedY(){
-	return speed_y;
-}
-
-GLfloat Moveable::getSpeedMaxX(){
-	return speed_max_x;
-}
-
-GLfloat Moveable::getSpeedMaxY(){
-	return speed_max_y;
+	this->speedMax = speedMax;
 }
