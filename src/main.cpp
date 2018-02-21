@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <array>
+#include <unistd.h>
 
 // Include GLEW
 #include <GL/glew.h>
@@ -12,6 +13,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "base/shader.h"
+#include "base/texture.h"
+#include "ball/ball.h"
+#include "block/block.h"
 
 int main( void )
 {
@@ -59,77 +63,36 @@ int main( void )
 	// Accept fragment if it closer to the camera than the former one
 	glDepthFunc(GL_LESS);
 
-
-	GLuint vertexArrayID;
-	glGenVertexArrays(1, &vertexArrayID);
-	glBindVertexArray(vertexArrayID);
-
 	// Create and compile our GLSL program from the shaders
-	GLuint programID = LoadShaders( "shader/TransformVertexShader2.vertexshader", "shader/ColorFragmentShader2.fragmentshader");
-
-	GLfloat width=1;
-	GLfloat height=1;
-	GLfloat depth=1;
-
-	std::array<GLfloat, 6*2*3*3> vertexBufferData={ 		//6 sides * 2 triangles/side * 3 vertexes/triangle * 3 coordinates/vertex
-			//front side
-			0, 0, 0,
-			width, height, 0,
-			0, height, 0,
-			0, 0, 0,
-			width, 0, 0,
-			width, height, 0,
-			//left side
-			width, 0, 0,
-			width, height, depth,
-			width, height, 0,
-			width, 0, 0,
-			width, 0, depth,
-			width, height, depth,
-			//back side
-			width, 0, depth,
-			0, height, depth,
-			width, height, depth,
-			width, 0, depth,
-			0, 0, depth,
-			0, height, depth,
-			//right side
-			0, 0, depth,
-			0, height, 0,
-			0, height, depth,
-			0, 0, depth,
-			0, 0, 0,
-			0, height, 0,
-			//top side
-			0, height, 0,
-			width, height, depth,
-			0, height, depth,
-			0, height, 0,
-			width, height, 0,
-			width, height, depth,
-			//bottom side
-			0, 0, depth,
-			width, 0, 0,
-			0, 0, 0,
-			0, 0, depth,
-			width, 0, depth,
-			width, 0, 0
-	};
-
-	GLuint vertexbuffer;
-	glGenBuffers(1, &vertexbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexBufferData), &vertexBufferData[0], GL_STATIC_DRAW);
+	GLuint programID = LoadShaders("shader/TransformVertexShader.vertexshader", "shader/TextureFragmentShader.fragmentshader");
 
 	// Get a handle for our "MVP" uniform
 	GLuint MatrixID = glGetUniformLocation(programID, "MVP");
+
+	Block block=Block();
+	block.setTextureID(0);
+	block.setTexture(0);
+	block.setMatrixID(MatrixID);
+	block.setSize(2.0f, 1.0f, 2.0f);
+	block.setPosition(glm::vec3(-1.0f, 0.0f, 0.0f));
+    block.setActive(true);
+
+	Ball ball=Ball();
+	ball.setTextureID(0);
+	ball.setTexture(0);
+	ball.setMatrixID(MatrixID);
+	ball.setRadius(0.5f);
+	ball.setPosition(glm::vec3(0.0f, 1.5f, 0.5f));
+    ball.setSpeed(glm::vec3(0.3f, 0.0f, 0.1f));
+    ball.setActive(true);
+    ball.setRollingEnabled(true);
 
 	// Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
 	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
 	// Camera matrix
 	glm::mat4 View       = glm::lookAt(
-			glm::vec3(4,3,-5), // Camera is at (4,3,3), in World Space
-			glm::vec3(0,0,0), // and looks at the origin
+			glm::vec3(3, 2, 10), // Camera is at (4,3,3), in World Space
+			glm::vec3(0.0f,0.0f,0.0f), // and looks at the origin
 			glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
 	);
 	// Model matrix : an identity matrix (model will be at the origin)
@@ -140,36 +103,21 @@ int main( void )
 
 	do{
 
+        ball.move(0.01f);
 		// Clear the screen
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Use our shader
 		glUseProgram(programID);
 
-		// Send our transformation to the currently bound shader,
-		// in the "MVP" uniform
-		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
-
-		// 1rst attribute buffer : vertices
-		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexArrayID);
-		glVertexAttribPointer(
-				0,                  // attribute. No particular reason for 0, but must match the layout in the shader.
-				3,                  // size
-				GL_FLOAT,           // type
-				GL_FALSE,           // normalized?
-				0,                  // stride
-				(void*)0            // array buffer offset
-		);
-
-		// Draw the triangle !
-		glDrawArrays(GL_TRIANGLES, 0, 6*2*3); // 12*3 indices starting at 0 -> 12 triangles
-
-		glDisableVertexAttribArray(0);
+		block.draw(View, Projection);
+		ball.draw(View, Projection);
 
 		// Swap buffers
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+
+        usleep(10000);
 
 
 	} // Check if the ESC key was pressed or the window was closed
@@ -177,8 +125,6 @@ int main( void )
 		   glfwWindowShouldClose(window) == 0 );
 
 	// Cleanup VBO
-	glDeleteBuffers(1, &vertexbuffer);
-	glDeleteVertexArrays(1, &vertexArrayID);
 	glDeleteProgram(programID);
 
 	// Close OpenGL window and terminate GLFW

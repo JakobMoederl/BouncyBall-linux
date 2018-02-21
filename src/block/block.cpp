@@ -12,22 +12,12 @@ Block::Block(void)
 
 	reflection = glm::vec3(1.0f);
 
-	glGenVertexArrays(1, &vertexArrayID);
-	glGenVertexArrays(1, &uvArrayID);
-
-	glGenBuffers(1, &vertexBuffer);
-	glGenBuffers(1, &uvBuffer);
 	genVertexBufferData();
 }
 
 //destrucktor
 Block::~Block(void)
 {
-	glDeleteBuffers(1, &vertexBuffer);
-	glDeleteBuffers(1, &uvBuffer);
-
-	glDeleteVertexArrays(1, &vertexArrayID);
-	glDeleteVertexArrays(1, &uvArrayID);
 }
 
 //draws the block
@@ -41,10 +31,10 @@ void Block::draw(const glm::mat4 & view, const glm::mat4 & projection){
     glUniformMatrix4fv(matrixID, 1, GL_FALSE, &mvp[0][0]);
 
     // Bind our texture in Texture Unit 0
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    //glActiveTexture(GL_TEXTURE0);
+    //glBindTexture(GL_TEXTURE_2D, texture);
     // Set our "myTextureSampler" sampler to use Texture Unit 0
-    glUniform1i(textureID, 0);
+    //glUniform1i(textureID, 0);
 
     // 1rst attribute buffer : vertices
     glEnableVertexAttribArray(0);
@@ -301,5 +291,16 @@ GLfloat Block::getDepth() const
 const glm::vec3 & Block::getReflection() const
 {
 	return reflection;
+}
+
+void Block::setSize(const GLfloat width, const GLfloat height, const GLfloat depth) {
+	Block::width = width;
+	Block::height = height;
+	Block::depth = depth;
+	genVertexBufferData();
+}
+
+void Block::setSize(glm::vec3 size) {
+	setSize(size[0], size[1], size[2]);
 }
 

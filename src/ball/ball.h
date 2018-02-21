@@ -20,7 +20,7 @@ public:
 	//returns true if the Ball has a kollision with the other ball
 	bool checkCollision(const Ball& object) const;
     //should override to compute on a kollion
-    virtual void doCollision(Ball& object) = 0;
+    //virtual void doCollision(Ball& object) = 0;
 
 	//standart draw funtion, overide for advanced drawing (animations)
 	virtual void draw(const glm::mat4 & view, const glm::mat4 & projection);
@@ -43,7 +43,7 @@ public:
 	void setRollingEnabled(const bool rolling);
 
 protected:
-	void genVertexBufferData();
+    void genVertexBufferData();
 
     AnimationRot rolling;
 

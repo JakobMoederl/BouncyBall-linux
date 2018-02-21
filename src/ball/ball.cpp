@@ -9,6 +9,7 @@
 //standardkonstrucktor
 Ball::Ball()
 {
+    vertexArraySize=1*2*3; //6 sides, with two triangles each with 3 vertexes per triangle
 	onFloor = false;
 	active = true;
 	floorBounds = glm::vec2(0.0f);
@@ -19,28 +20,16 @@ Ball::Ball()
 
 	rolling = AnimationRot(0.0f, 1/radius);
 
-	posVec[3] = 0.5;
+	posVec[2] = 0.5;
 
 	active = true;
+
+    genVertexBufferData();
 }
 
 //General constructor (sets also x and y position of the ball)
-Ball::Ball(const glm::vec3 & pos){
+Ball::Ball(const glm::vec3 & pos): Ball(){
     setPosition(pos);
-    setRadius(0.3f);
-	setOnFloor(false, glm::vec2(0.0f));
-
-	active = true;
-
-	rotationEnabled = true;
-    rolling = AnimationRot(0, 1/radius);
-
-	glGenVertexArrays(1, &vertexArrayID);
-	glGenVertexArrays(1, &uvArrayID);
-
-	glGenBuffers(1, &vertexBuffer);
-	glGenBuffers(1, &uvBuffer);
-	genVertexBufferData();
 }
 
 //destructor
@@ -65,10 +54,10 @@ void Ball::draw(const glm::mat4 & view, const glm::mat4 & projection){
     glUniformMatrix4fv(matrixID, 1, GL_FALSE, &mvp[0][0]);
 
     // Bind our texture in Texture Unit 0
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    //glActiveTexture(GL_TEXTURE0);
+    //glBindTexture(GL_TEXTURE_2D, texture);
     // Set our "myTextureSampler" sampler to use Texture Unit 0
-    glUniform1i(textureID, 0);
+    //glUniform1i(textureID, 0);
 
     // 1rst attribute buffer : vertices
     glEnableVertexAttribArray(0);
@@ -137,7 +126,8 @@ void Ball::genVertexBufferData() {
 //moves the ball (with rotation) and looks if it is still on a floor
 void Ball::move(const GLfloat time){
 	Moveable::move(time);
-	
+	rolling.doStep(posVec[0] - x_last);
+    x_last = posVec[0];
 	if(isOnFloor() && (getPosition()[0] < floorBounds[0] || getPosition()[0] > floorBounds[1])){
 		this->onFloor = false;
 	}

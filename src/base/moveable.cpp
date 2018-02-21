@@ -5,8 +5,9 @@
 
 Moveable::Moveable(void)
 {
-	this->speed={0,0,0};
-	this->speedMax={10,10,10};
+	this->speed=glm::vec3(0,0,0);
+	this->speedMax=glm::vec3(10,10,10);
+	this->acceleration = glm::vec3(0, 0, 0);
 }
 
 
@@ -17,7 +18,7 @@ Moveable::~Moveable(void)
 //moves the object depending on the time since the last move
 void Moveable::move(GLfloat time){
 	setSpeed(speed + acceleration*time);
-	setPosition(getPosition() + speed*time);
+	setPosition(posVec + speed*time);
 }
 
 const glm::vec3 & Moveable::getSpeed() const
@@ -27,7 +28,7 @@ const glm::vec3 & Moveable::getSpeed() const
 //Sets the x speed, if the x speed is greater then the max speed value it is set to max speed value
 void Moveable::setSpeed(const glm::vec3 & speed)
 {
-	this->speed=glm::clamp(speed, speedMax, -speedMax); //keep speed in bounds
+	this->speed=glm::clamp(speed, -speedMax, speedMax); //keep speed in bounds
 }
 
 const glm::vec3 & Moveable::getAcceleration() const{

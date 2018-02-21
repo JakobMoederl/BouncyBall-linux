@@ -12,7 +12,6 @@ class Block : public Moveable
 {
 public:
 	Block();
-	Block(const GLfloat x, const GLfloat y, const GLfloat width, const GLfloat height);
 	~Block();
 
 	//returns true if there is a kollision with the Ball
@@ -22,7 +21,7 @@ public:
 	//check for collision with a ball object
 	bool checkCollision(const Ball& object) const;
     //if a collision occurs, calculate its effect --> depends on block type either player dies or
-    virtual void doCollision(Ball& object) = 0;
+    //virtual void doCollision(Ball& object) = 0;
 
     //returns the width of the block
     GLfloat getWidth() const;
@@ -34,6 +33,8 @@ public:
 	void setHeight(const GLfloat height);
     GLfloat getDepth() const;
 	void setDepth(const GLfloat depth);
+	void setSize(const GLfloat width, const GLfloat height, const GLfloat depth);
+	void setSize(glm::vec3 size);
     //return the center of the block, mostly useful for collision detection
 	virtual const glm::vec3 & getCenter() const;
 

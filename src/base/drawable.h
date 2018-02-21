@@ -42,10 +42,9 @@ public:
 	void setActive(const bool active);
 
 protected:
-    glm::vec3 posVec;
-public:
+	virtual void genVertexBufferData() = 0;
 
-protected:
+    glm::vec3 posVec;
 	glm::mat4 rotMat;
     glm::mat4 scaleMat;
 	glm::mat4 modelMat;

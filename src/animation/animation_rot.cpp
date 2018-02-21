@@ -24,8 +24,10 @@ AnimationRot::~AnimationRot() {
 }
 
 void AnimationRot::doStep(const float stepSize) {
-    //update the animation duration - set the amplitude to 1/radius to get a rolling effect
-    Animation::doStep(stepSize);
-    //update the animation matrix
-    setMatrix(glm::rotate(getMatrix(), getAmplitude()*stepSize, glm::vec3(0.0f, 0.0f, 1.0f)));
+    if(isActive()) {
+        //update the animation duration - set the amplitude to 1/radius to get a rolling effect
+        Animation::doStep(stepSize);
+        //update the animation matrix
+        setMatrix(glm::rotate(getMatrix(), getAmplitude() * stepSize, glm::vec3(0.0f, 0.0f, -1.0f)));
+    }
 }
