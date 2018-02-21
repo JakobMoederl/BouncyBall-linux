@@ -91,21 +91,31 @@ int main( void )
 	block.setPosition(glm::vec3(-1.0f, 0.0f, 0.0f));
     block.setDrawEnable(true);
 
-	Ball ball=Ball();
-	ball.textureID = TextureID;
-	ball.texture = textureBall;
-	ball.matrixID = MatrixID;
-	ball.setRadius(.5f);
-	ball.setPosition(glm::vec3(-2.0f, 0.5f, -0.5f));
+    Ball ball=Ball();
+    ball.textureID = TextureID;
+    ball.texture = textureBall;
+    ball.matrixID = MatrixID;
+    ball.setRadius(.3f);
+    ball.setPosition(glm::vec3(-2.0f, 0.5f, -0.5f));
     ball.setSpeed(glm::vec3(0.3f, 0.0f, 0.0f));
     ball.setDrawEnable(true);
     ball.setRollingEnabled(true);
+
+    Ball ball2=Ball();
+    ball2.textureID = TextureID;
+    ball2.texture = textureBall;
+    ball2.matrixID = MatrixID;
+    ball2.setRadius(.2f);
+    ball2.setPosition(glm::vec3(+3.0f, 0.8f, -0.2f));
+    ball2.setSpeed(glm::vec3(0.0f));
+    ball2.setDrawEnable(true);
+    ball2.setRollingEnabled(false);
 
 	// Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
 	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), (GLfloat)INITIAL_SCR_RES_X / (GLfloat)INITIAL_SCR_RES_Y, 0.1f, 100.0f);
 	// Camera matrix
 	glm::mat4 View       = glm::lookAt(
-			glm::vec3(-4, 7, 10), // Camera is at (4,3,3), in World Space
+			glm::vec3(0, 0, 10), // Camera is at (4,3,3), in World Space
 			glm::vec3(0.0f,0.0f,0.0f), // and looks at the origin
 			glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
 	);
@@ -114,12 +124,21 @@ int main( void )
 	// Our ModelViewProjection : multiplication of our 3 matrices
 	glm::mat4 MVP        = Projection * View * Model; // Remember, matrix multiplication is the other way around
 	int i=0;
-	bool collision;
+	bool collisionBall=false;
+    bool lastCollisionBall=false;
+    bool collisionBlock=false;
+    bool lastCollisionBlock=false;
 	do{
-		if(i++%100==0){
-			collision=block.checkCollision(ball);
-			printf("Collision occured: %s\n", collision ? "Yes": "No");
-		}
+        collisionBlock=block.checkCollision(ball);
+        if(collisionBlock!=lastCollisionBlock){
+            printf("%s\n", collisionBlock ? "collisionBlock with block!": "No collisionBlock with block");
+            lastCollisionBlock = collisionBlock;
+        }
+        collisionBall=ball.checkCollision(ball2);
+        if(collisionBall!=lastCollisionBall) {
+            printf("%s\n", collisionBall ? "collisionBlock with ball!" : "No collisionBlock with ball");
+            lastCollisionBall = collisionBall;
+        }
 
         ball.move(0.01f);
 		// Clear the screen
@@ -130,6 +149,7 @@ int main( void )
 
 		block.draw(View, Projection);
 		ball.draw(View, Projection);
+        ball2.draw(View, Projection);
 
 		// Swap buffers
 		glfwSwapBuffers(window);

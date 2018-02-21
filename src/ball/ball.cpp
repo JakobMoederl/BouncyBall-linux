@@ -184,8 +184,12 @@ bool Ball::isRollingEnabled() const{
 }
 
 bool Ball::checkCollision(const Ball &object) const {
+    static glm::vec3 p;
+    p = getCenter() - object.getCenter();
+    //ignore z component for collision detection of balls
+    p[2] = 0;
     //length 2 returns the square of the length, so to compare it we need to square the minimum distance too
-    return glm::length2(getCenter() - object.getCenter()) < pow(this->radius + object.getRadius(), 2);
+    return glm::length2(p) < pow(this->getRadius() + object.getRadius(),2);
 }
 
 inline const glm::vec3 &Ball::getCenter() const {

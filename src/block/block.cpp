@@ -1,3 +1,5 @@
+
+#include <math.h>
 #include <GL/glew.h>
 #include <glm/gtx/norm.hpp>
 #include "block.h"
@@ -177,7 +179,7 @@ bool Block::checkCollision(const Ball & object) const{
     //p = vector between closest point and center of ball
 	p = (object.getCenter() - (this->getCenter() + p));
     //if the distance is smaller than the radius of the ball we have a collision
-	return glm::length2(p) < object.getRadius()*object.getRadius();
+	return glm::length2(p) < pow(object.getRadius(),2);
 }
 
 /*
