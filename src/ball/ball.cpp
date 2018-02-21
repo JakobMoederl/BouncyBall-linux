@@ -12,8 +12,8 @@
 Ball::Ball()
 {
 	onFloor = false;
+    floorBlock = NULL;
     setDrawEnable(true);
-	floorBounds = glm::vec2(0.0f);
     reflection = glm::vec3(0.8f, 0.6f, 0.0f);
 
 	x_last = getPosition()[0];
@@ -109,12 +109,12 @@ void Ball::genVertexBufferData() {
 	glBindVertexArray(uvArrayID);
 
 	uvBufferData={
-			0, 0,
 			1, 1,
-			0, 1,
 			0, 0,
 			1, 0,
-			1, 1
+			1, 1,
+			0, 1,
+			0, 0
 	};
 
 	glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
@@ -127,15 +127,190 @@ void Ball::move(const GLfloat time){
 	rolling.doStep(getPosition()[0] - x_last);
     updateModel = true;
     x_last = getPosition()[0];
-	if(isOnFloor() && (getPosition()[0] < floorBounds[0] || getPosition()[0] > floorBounds[1])){
+	if(isOnFloor()
+       && (getPosition()[0] < floorBlock->getPosition()[0] || getPosition()[0] > floorBlock->getPosition()[0] + floorBlock->getSize()[0])){
 		this->onFloor = false;
 	}
 }
 
-//sets the reflection factor for bouncing against a vertical wall (horizontal speed)
-void Ball::setReflection(const glm::vec3 & reflection)
-{
-	this->reflection = reflection;
+bool Ball::checkCollision(const Block & object) const{
+    static glm::vec3 p;
+    //p = distance between center of ball nearest box edge
+    p = glm::clamp(this->getCenter() - object.getCenter(), -glm::abs(object.getSize()/2.0f), glm::abs(object.getSize()/2.0f));
+
+    //p = vector between closest point and center of ball
+    p = (this->getCenter() - (object.getCenter() + p));
+    p[2] = 0; //ignore z component for detection
+    //if the distance is smaller than the radius of the ball we have a collision
+    return glm::length2(p) < pow(getRadius(),2);
+}
+
+
+bool Ball::checkCollision(const Ball &object) const {
+    static glm::vec3 p;
+    p = getCenter() - object.getCenter();
+    //ignore z component for collision detection of balls
+    p[2] = 0;
+    //length 2 returns the square of the length, so to compare it we need to square the minimum distance too
+    return glm::length2(p) < pow(this->getRadius() + object.getRadius(),2);
+}
+
+
+void Ball::doCollisionBounce(Block &block) {
+    enum CollisionEdge collisionEdge = getCollisionEdge(block);
+    bounceOffEdge(collisionEdge, block);
+}
+
+enum CollisionEdge Ball::getCollisionEdge(const Block &block) {
+    enum CollisionEdge collisionEdge = COL_NONE;
+    glm::vec3 edge;
+    glm::vec3 speedDiff;
+    glm::vec3 ballCenter = getCenter(); //could save syscalls, but maybe the compiler optimizes it anyways
+    glm::vec3 blockCenter = block.getCenter(); //could save syscalls, but maybe the compiler optimizes it anyways
+
+    //detect collision edge
+    //if x ball center < x block center --> collision is on the left side
+    if(ballCenter[0] < blockCenter[0]){
+        //if ball y < block y --> collision on lower left quadrant
+        if(ballCenter[1] < blockCenter[1]) {
+            //collision is in the lower left region of the block
+            //check if edge, left or lower collisoin
+            edge = block.getPosition();
+            edge[2] = ballCenter[2];    //ignore z-component for collision
+            // ball center x > edge x ==> bottom side collision
+            if (ballCenter[0] > edge[0]) {
+                collisionEdge = COL_BOTTOM;
+            } else if (ballCenter[1] > edge[1]) {
+            //ball center y > edge y ==> left side collision
+                collisionEdge = COL_LEFT;
+            } else {
+                collisionEdge = COL_BOTTOM_LEFT;
+            }
+        }
+            // collision upper left quadrant
+        else {
+            edge = block.getPosition();
+            edge[2] = ballCenter[2];
+            edge[1] = edge[1] + block.getSize()[1];
+            // ball center x > edge x ==> top side collision
+            if (ballCenter[0] > edge[0]){
+                collisionEdge = COL_TOP;
+            } else if(ballCenter[1] < edge[1]) {
+                //ball center y < edge y ==> left side collision
+                collisionEdge = COL_LEFT;
+            } else {
+                collisionEdge = COL_TOP_LEFT;
+                // center (X) of the ball is right of the edge --> top collision
+            }
+        }
+    }
+        //if x ball center > x block center --> collision is on the right side
+    else {
+        //if ball y < block y --> collision on lower right quadrant
+        if(ballCenter[1] < blockCenter[1]){
+            //collision is in the lower left region of the block
+            //check if edge, left or lower collisoin
+            edge = block.getPosition();
+            edge[0] = edge[0] + block.getSize()[0];
+            edge[2] = ballCenter[2]; 	//ignore z-component for collision
+            // ball center x < edge x ==> bottom collision
+            if (ballCenter[0] < edge[0]){
+                collisionEdge = COL_BOTTOM;
+            } else if (ballCenter[1] > edge[1]){
+                //ball center y > edge > ==> right side collision
+                collisionEdge = COL_RIGHT;
+            } else {
+                //if none of the above, edge collision
+                collisionEdge = COL_BOTTOM_RIGHT;
+            }
+        }
+            // upper right quadrant
+        else {
+            edge = block.getPosition();
+            edge[0] = edge[0] + block.getSize()[0];
+            edge[1] = edge[1] + block.getSize()[1];
+            edge[2] = ballCenter[2]; 	//ignore z-component for collision
+            //ball center x < edge x ==> top collision
+            if (ballCenter[0] < edge[0]){
+                collisionEdge = COL_TOP;
+            } else if (ballCenter[1] < edge[1]){
+                //ball center y > edge y ==> right collision
+                collisionEdge = COL_RIGHT;
+            } else {
+                //if none of the above, edge collision
+                collisionEdge = COL_TOP_RIGHT;
+            }
+        }
+
+    }
+    return collisionEdge;
+}
+
+void Ball::bounceOffEdge(const enum CollisionEdge edgeEnum, Block &block) {
+    float anglePos;
+    float angleSpeed;
+    float totalSpeed;
+    glm::vec3 edge;
+    glm::vec3 speedDiff = speed - block.getSpeed();
+    speedDiff[2] = 0;   //ignore speed z component
+    switch(edgeEnum){
+        case COL_TOP:
+            speed[1] = block.getSpeed()[1] - speedDiff[1]*reflection[1]*block.reflection[1];
+            if(speed[1] < 1.5f){
+                speed[1] = 0;
+                setOnFloor(true, &block);
+            }
+            setPositionY(radius + block.getPosition()[1] + block.getSize()[1]);
+            break;
+        case COL_BOTTOM:
+            speed[1] = block.getSpeed()[1] -speedDiff[1]*reflection[1]*block.reflection[1];
+            setPositionY(block.getPosition()[1] - radius);
+            break;
+        case COL_LEFT:
+            speed[0] = block.getSpeed()[0] - speedDiff[0]*reflection[0]*block.reflection[0];
+            setPositionX(block.getPosition()[0] - radius);
+            break;
+        case COL_RIGHT:
+            speed[0] = block.getSpeed()[0] - speedDiff[0]*reflection[0]*block.reflection[0];
+            setPositionX(block.getPosition()[0] + block.getSize()[0] + radius);
+            break;
+        case COL_BOTTOM_LEFT:
+        case COL_TOP_LEFT:
+        case COL_TOP_RIGHT:
+        case COL_BOTTOM_RIGHT:
+            //change position to edge of block
+            edge = block.getPosition();
+            printf("speed before collision: %f\n", glm::length(speed));
+
+            if(edgeEnum == COL_TOP_LEFT || edgeEnum == COL_TOP_RIGHT){
+                edge[1] += block.getSize()[1];
+            }
+            if(edgeEnum == COL_TOP_RIGHT || edgeEnum == COL_BOTTOM_RIGHT){
+                edge[0] += block.getSize()[0];
+            }
+
+            anglePos = atanf((edge[1] - getPosition()[1]) / (edge[0] - getPosition()[0]));
+            if(edge[0] - getPosition()[0] < 0) anglePos += M_PI;    //correct atan fucntion if in 2nd or 3th quadrant
+            setPositionX(edge[0] - radius*1.001f * cos(anglePos));
+            setPositionY(edge[1] - radius*1.001f * sin(anglePos));
+
+            if(checkCollision(block)) printf("still in collision after position correction\n");
+            //calc new speed with angle of reflection = angle of impact (relative to angle between ball and edge)
+            angleSpeed = atanf(speedDiff[1] / speedDiff[0]);
+            if(speedDiff[0] < 0) angleSpeed += M_PI; //correct the angle if necessary
+            angleSpeed = anglePos + M_PI + (anglePos - angleSpeed); //calculate new angle of speed vector
+            //calculate total speed
+            totalSpeed = glm::length(speedDiff) * (pow(cosf(angleSpeed),2)*reflection[0]*block.reflection[0] + pow(sinf(angleSpeed), 2)*reflection[1]*block.reflection[1]);
+            speed[0] = block.getSpeed()[0] + totalSpeed*cosf(angleSpeed);
+            speed[1] = block.getSpeed()[1] + totalSpeed*sinf(angleSpeed);
+
+            printf("speed after collision: %f\n", glm::length(speed));
+            break;
+
+        default:    //unrecognized edge
+            break;
+            //do nothing
+    }
 }
 
 //Sets the radius of the ball
@@ -146,13 +321,6 @@ void Ball::setRadius(const GLfloat radius)
     this->rolling.setAmplitude(1/radius);
 }
 
-//get reflection factor of the ball
-const glm::vec3 & Ball::getReflection() const
-{
-	return reflection;
-}
-
-
 //gets the radius of the ball
 GLfloat Ball::getRadius(void) const
 {
@@ -160,10 +328,10 @@ GLfloat Ball::getRadius(void) const
 }
 
 //sets if the ball is on floor or not (and also from where to where the floor is wher the ball is currently on)
-void Ball::setOnFloor(bool onFloor, const glm::vec2 & floorBounds)
+void Ball::setOnFloor(bool onFloor, Block * block)
 {
 	this->onFloor = onFloor;
-    this->floorBounds = floorBounds;
+    this->floorBlock = block;
 }
 
 //returns true if the ball is currently on floor
@@ -181,15 +349,6 @@ void Ball::setRollingEnabled(bool enabled) {
 //gets if rotation is enabled for this ball
 bool Ball::isRollingEnabled() const{
 	return rolling.isActive();
-}
-
-bool Ball::checkCollision(const Ball &object) const {
-    static glm::vec3 p;
-    p = getCenter() - object.getCenter();
-    //ignore z component for collision detection of balls
-    p[2] = 0;
-    //length 2 returns the square of the length, so to compare it we need to square the minimum distance too
-    return glm::length2(p) < pow(this->getRadius() + object.getRadius(),2);
 }
 
 inline const glm::vec3 &Ball::getCenter() const {

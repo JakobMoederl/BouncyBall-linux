@@ -20,6 +20,9 @@ public:
     //position matrix getter and setter
 	const glm::vec3 & getPosition() const;
 	virtual void setPosition(const glm::vec3 &posVec);
+	virtual void setPositionX(const GLfloat pos);
+	virtual void setPositionY(const GLfloat pos);
+	virtual void setPositionZ(const GLfloat pos);
 
 	virtual bool isDrawEnabled(void) const;
 	//sets if the object is activated or not

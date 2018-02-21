@@ -7,10 +7,9 @@
 //Standartkonstrucktor
 Block::Block(void)
 {
-
 	size=glm::vec3(1.0f);
-	reflection = glm::vec3(1.0f);
-
+    reflection = glm::vec3(0.0f);
+    jump_speed = 10.0f;
 	genVertexBufferData();
 }
 
@@ -172,89 +171,8 @@ void Block::genVertexBufferData() {
 	glBufferData(GL_ARRAY_BUFFER, sizeof(uvBufferData), &uvBufferData[0], GL_STATIC_DRAW);
 }
 
-bool Block::checkCollision(const Ball & object) const{
-    static glm::vec3 p;
-    //p = distance between center of ball nearest box edge
-	p = glm::clamp(object.getCenter() - this->getCenter(), -glm::abs(size/2.0f), glm::abs(size/2.0f));
-    //p = vector between closest point and center of ball
-	p = (object.getCenter() - (this->getCenter() + p));
-    //if the distance is smaller than the radius of the ball we have a collision
-	return glm::length2(p) < pow(object.getRadius(),2);
-}
-
-/*
-//returns true if there is any kollision (if so the kollisions type value is set)
-bool Block::getKollisionEdge(Ball& object){
-	if(!(active && object.isActive())){
-		kollisionsType = HT_NO_KOLLISION;
-		return false;
-	}
-	
-	//top and bottom
-	if(object.getX() > x && object.getX() < (x + width) && object.getSpeedY() != 0 ){
-		if(object.getY() + object.getRadius() > y && object.getY() - object.getRadius() < y + height){
-			if(object.getSpeedY() > 0){
-				kollisionsType = HT_BOTTOM;
-				return true;
-			} else {
-				kollisionsType = HT_TOP;
-				return true;
-			}
-		}
-	}
-
-	//left and right
-	if(object.getY() > y && object.getY() < (y + height) && object.getSpeedX() != 0){
-		if( (object.getX() + object.getRadius()) > x &&  (object.getX() - object.getRadius()) < (x + width)){
-			if(object.getSpeedX() > 0.0f){
-				kollisionsType = HT_LEFT;
-				return true;
-			} else {
-				kollisionsType = HT_RIGHT;
-				return true;
-			}
-		}
-	}
-	
-	return false;
-}
-
-//returns true if there is a collision at the corners
-bool Block::getKollisionCorner(Ball& object){
-	if(!(active && object.isActive())){
-		return false;
-	}
-
-	//Corners
-	if(sqrtf(powf(x - object.getX(), 2) + powf(y - object.getY(), 2)) < (object.getRadius() - 0.01f)){
-		kollisionsType = HT_LOWER_LEFT_CORNER;
-		return true;
-	} else if(sqrtf(powf(x - object.getX(), 2) + powf(y + height - object.getY(), 2)) < (object.getRadius() - 0.01f)){
-		kollisionsType = HT_UPPER_LEFT_CORNER;
-		return true;
-	} else if(sqrtf(powf(x + width - object.getX(), 2) + powf(y + height - object.getY(), 2)) < (object.getRadius() - 0.01f)){
-		kollisionsType = HT_UPPER_RIGHT_CORNER;
-		return true;
-	} else if(sqrtf(powf(x + width - object.getX(), 2) + powf(y - object.getY(), 2)) < (object.getRadius() - 0.01f)){
-		kollisionsType = HT_LOWER_RIGHT_CORNER;
-		return true;
-	}
-	return false;
-}
- */
-
 inline const glm::vec3 & Block::getCenter() const {
     return center;
-}
-
-void Block::setReflection(const glm::vec3 &reflection)
-{
-	Block::reflection = reflection;
-}
-
-const glm::vec3 & Block::getReflection() const
-{
-	return reflection;
 }
 
 void Block::setSize(const GLfloat width, const GLfloat height, const GLfloat depth) {

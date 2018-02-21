@@ -56,3 +56,18 @@ bool Drawable::isDrawEnabled() const{
 void Drawable::setDrawEnable(const bool active){
     this->drawEnabled = active;
 }
+
+void Drawable::setPositionX(const GLfloat pos) {
+    posVec[0] = pos;
+    updateModel = true;
+}
+
+void Drawable::setPositionY(const GLfloat pos) {
+    posVec[1] = pos;
+    updateModel = true;
+}
+
+void Drawable::setPositionZ(const GLfloat pos) {
+    posVec[2] = pos;
+    updateModel = true;
+}

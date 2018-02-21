@@ -84,6 +84,7 @@ int main( void )
     GLuint textureStone = loadTexture("pics/StoneBlock.tga");
 
     Block block=Block();
+    block.reflection=glm::vec3(1.0f);
 	block.textureID = TextureID;
 	block.texture = textureStone;
 	block.matrixID = MatrixID;
@@ -92,12 +93,13 @@ int main( void )
     block.setDrawEnable(true);
 
     Ball ball=Ball();
+    ball.reflection=glm::vec3(1.0f);
     ball.textureID = TextureID;
     ball.texture = textureBall;
     ball.matrixID = MatrixID;
     ball.setRadius(.3f);
-    ball.setPosition(glm::vec3(-2.0f, 0.5f, -0.5f));
-    ball.setSpeed(glm::vec3(0.3f, 0.0f, 0.0f));
+    ball.setPosition(glm::vec3(+3.4f, -.95f, -0.5f));
+    ball.setSpeed(glm::vec3(-1.0f, 0.3f, 0.0f));
     ball.setDrawEnable(true);
     ball.setRollingEnabled(true);
 
@@ -106,7 +108,7 @@ int main( void )
     ball2.texture = textureBall;
     ball2.matrixID = MatrixID;
     ball2.setRadius(.2f);
-    ball2.setPosition(glm::vec3(+3.0f, 0.8f, -0.2f));
+    ball2.setPosition(glm::vec3(+3.0f, 0.9f, -0.2f));
     ball2.setSpeed(glm::vec3(0.0f));
     ball2.setDrawEnable(true);
     ball2.setRollingEnabled(false);
@@ -115,7 +117,7 @@ int main( void )
 	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), (GLfloat)INITIAL_SCR_RES_X / (GLfloat)INITIAL_SCR_RES_Y, 0.1f, 100.0f);
 	// Camera matrix
 	glm::mat4 View       = glm::lookAt(
-			glm::vec3(0, 0, 10), // Camera is at (4,3,3), in World Space
+			glm::vec3(0, -2, 7), // Camera is at (4,3,3), in World Space
 			glm::vec3(0.0f,0.0f,0.0f), // and looks at the origin
 			glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
 	);
@@ -129,14 +131,17 @@ int main( void )
     bool collisionBlock=false;
     bool lastCollisionBlock=false;
 	do{
-        collisionBlock=block.checkCollision(ball);
+        collisionBlock=ball.checkCollision(block);
+        if(collisionBlock){
+            ball.doCollisionBounce(block);
+        }
         if(collisionBlock!=lastCollisionBlock){
-            printf("%s\n", collisionBlock ? "collisionBlock with block!": "No collisionBlock with block");
+            printf("%s\n", collisionBlock ? "collision with block!": "No collision with block");
             lastCollisionBlock = collisionBlock;
         }
         collisionBall=ball.checkCollision(ball2);
         if(collisionBall!=lastCollisionBall) {
-            printf("%s\n", collisionBall ? "collisionBlock with ball!" : "No collisionBlock with ball");
+            printf("%s\n", collisionBall ? "collision with ball!" : "No collision with ball");
             lastCollisionBall = collisionBall;
         }
 
