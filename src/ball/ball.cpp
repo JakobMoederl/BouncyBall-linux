@@ -4,25 +4,22 @@
 #include <math.h>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/norm.hpp>
 #include "ball.h"
 
 //standardkonstrucktor
 Ball::Ball()
 {
-    vertexArraySize=1*2*3; //6 sides, with two triangles each with 3 vertexes per triangle
 	onFloor = false;
-	active = true;
+    setDrawEnable(true);
 	floorBounds = glm::vec2(0.0f);
     reflection = glm::vec3(0.8f, 0.6f, 0.0f);
 
-	x_last = posVec[0];
-	radius = 0.3f;
+	x_last = getPosition()[0];
+	setRadius(0.3f);
 
 	rolling = AnimationRot(0.0f, 1/radius);
-
-	posVec[2] = 0.5;
-
-	active = true;
 
     genVertexBufferData();
 }
@@ -44,11 +41,12 @@ Ball::~Ball()
 
 //draw function, draws the ball at the right position and angel
 void Ball::draw(const glm::mat4 & view, const glm::mat4 & projection){
-    if(!active){
+    if(!isDrawEnabled()){
         return;
     }
     //perform animation on vertex before MVP matrix;
-    this->mvp = projection * view * getModel() * rolling.getMatrix();
+    static glm::mat4 mvp;
+    mvp = projection * view * getModel();
     // Send our transformation to the currently bound shader,
     // in the "MVP" uniform
     glUniformMatrix4fv(matrixID, 1, GL_FALSE, &mvp[0][0]);
@@ -84,7 +82,7 @@ void Ball::draw(const glm::mat4 & view, const glm::mat4 & projection){
     );
 
     // Draw the triangle !
-    glDrawArrays(GL_TRIANGLES, 0, vertexArraySize); // 12*3 indices starting at 0 -> 12 triangles
+    glDrawArrays(GL_TRIANGLES, 0, VERTICES_PER_BALL); // 12*3 indices starting at 0 -> 12 triangles
 
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
@@ -96,12 +94,12 @@ void Ball::genVertexBufferData() {
 	glBindVertexArray(vertexArrayID);
 	vertexBufferData={
 			//front side
-			-0.5f, -0.5f, 0,
-			0.5f, 0.5f, 0,
-            -0.5f, 0.5f, 0,
-            -0.5f, -0.5f, 0,
-			0.5f, -0.5f, 0,
-			0.5f, 0.5f, 0,
+			-1.0f, -1.0f, 0,
+			1.0f, 1.0f, 0,
+            -1.0f, 1.0f, 0,
+            -1.0f, -1.0f, 0,
+			1.0f, -1.0f, 0,
+			1.0f, 1.0f, 0,
 	};
 
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
@@ -126,8 +124,9 @@ void Ball::genVertexBufferData() {
 //moves the ball (with rotation) and looks if it is still on a floor
 void Ball::move(const GLfloat time){
 	Moveable::move(time);
-	rolling.doStep(posVec[0] - x_last);
-    x_last = posVec[0];
+	rolling.doStep(getPosition()[0] - x_last);
+    updateModel = true;
+    x_last = getPosition()[0];
 	if(isOnFloor() && (getPosition()[0] < floorBounds[0] || getPosition()[0] > floorBounds[1])){
 		this->onFloor = false;
 	}
@@ -143,6 +142,7 @@ void Ball::setReflection(const glm::vec3 & reflection)
 void Ball::setRadius(const GLfloat radius)
 {
 	this->radius = radius;
+    updateModel = true;
     this->rolling.setAmplitude(1/radius);
 }
 
@@ -184,9 +184,22 @@ bool Ball::isRollingEnabled() const{
 }
 
 bool Ball::checkCollision(const Ball &object) const {
-    return glm::length(getCenter() - object.getCenter()) < this->radius + object.getRadius();
+    //length 2 returns the square of the length, so to compare it we need to square the minimum distance too
+    return glm::length2(getCenter() - object.getCenter()) < pow(this->radius + object.getRadius(), 2);
 }
 
 inline const glm::vec3 &Ball::getCenter() const {
     return getPosition();
+}
+
+float Ball::getAngle() const {
+    return rolling.getDuration();
+}
+
+const glm::mat4 &Ball::getModel() {
+    if(updateModel){
+		//model  = translation * rotation * scaling
+        model = glm::translate(glm::mat4(1.0f), getPosition()) * rolling.getMatrix() * glm::scale(glm::mat4(1.0f), glm::vec3(radius, radius, 0.0f));
+    }
+    return model;
 }

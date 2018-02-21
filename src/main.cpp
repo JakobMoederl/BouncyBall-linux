@@ -19,9 +19,8 @@
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
-int scr_width=640;
-int scr_height=480;
-
+#define INITIAL_SCR_RES_X 1366
+#define INITIAL_SCR_RES_Y 768
 int main( void )
 {
 	// Initialise GLFW
@@ -39,7 +38,7 @@ int main( void )
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Open a window and create its OpenGL context
-	GLFWwindow *window = glfwCreateWindow( scr_width, scr_height, "Simley Wars - a smiple openGL game by Jakob Möderl", NULL, NULL);
+	GLFWwindow *window = glfwCreateWindow( INITIAL_SCR_RES_X, INITIAL_SCR_RES_Y, "Simley Wars - a smiple openGL game by Jakob Möderl", NULL, NULL);
 	if( window == NULL ){
 		fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
 		getchar();
@@ -67,7 +66,7 @@ int main( void )
 	// Enable depth test
 	glEnable(GL_DEPTH_TEST);
 	// Accept fragment if it closer to the camera than the former one
-	glDepthFunc(GL_LESS);
+	glDepthFunc(GL_LEQUAL);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -85,25 +84,25 @@ int main( void )
     GLuint textureStone = loadTexture("pics/StoneBlock.tga");
 
     Block block=Block();
-	block.setTextureID(TextureID);
-	block.setTexture(textureStone);
-	block.setMatrixID(MatrixID);
-    block.setSize(2.0f, 1.0f, 2.0f);
+	block.textureID = TextureID;
+	block.texture = textureStone;
+	block.matrixID = MatrixID;
+    block.setSize(2.0f, 1.0f, -2.0f);
 	block.setPosition(glm::vec3(-1.0f, 0.0f, 0.0f));
-    block.setActive(true);
+    block.setDrawEnable(true);
 
 	Ball ball=Ball();
-	ball.setTextureID(TextureID);
-	ball.setTexture(textureBall);
-	ball.setMatrixID(MatrixID);
-	ball.setRadius(0.5f);
-	ball.setPosition(glm::vec3(0.0f, 1.5f, 0.5f));
-    ball.setSpeed(glm::vec3(0.3f, 0.0f, 0.1f));
-    ball.setActive(true);
+	ball.textureID = TextureID;
+	ball.texture = textureBall;
+	ball.matrixID = MatrixID;
+	ball.setRadius(.5f);
+	ball.setPosition(glm::vec3(-2.0f, 0.5f, -0.5f));
+    ball.setSpeed(glm::vec3(0.3f, 0.0f, 0.0f));
+    ball.setDrawEnable(true);
     ball.setRollingEnabled(true);
 
 	// Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), (GLfloat)scr_width / (GLfloat)scr_height, 0.1f, 100.0f);
+	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), (GLfloat)INITIAL_SCR_RES_X / (GLfloat)INITIAL_SCR_RES_Y, 0.1f, 100.0f);
 	// Camera matrix
 	glm::mat4 View       = glm::lookAt(
 			glm::vec3(-4, 7, 10), // Camera is at (4,3,3), in World Space
@@ -114,9 +113,13 @@ int main( void )
 	glm::mat4 Model      = glm::mat4(1.0f);
 	// Our ModelViewProjection : multiplication of our 3 matrices
 	glm::mat4 MVP        = Projection * View * Model; // Remember, matrix multiplication is the other way around
-
-
+	int i=0;
+	bool collision;
 	do{
+		if(i++%100==0){
+			collision=block.checkCollision(ball);
+			printf("Collision occured: %s\n", collision ? "Yes": "No");
+		}
 
         ball.move(0.01f);
 		// Clear the screen
@@ -154,7 +157,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
 
-    scr_width = width;
-    scr_height = height;
+	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), (GLfloat)width / (GLfloat)height, 0.1f, 100.0f);
 }
 

@@ -18,7 +18,7 @@ Moveable::~Moveable(void)
 //moves the object depending on the time since the last move
 void Moveable::move(GLfloat time){
 	setSpeed(speed + acceleration*time);
-	setPosition(posVec + speed*time);
+	setPosition(getPosition() + speed*time);
 }
 
 const glm::vec3 & Moveable::getSpeed() const

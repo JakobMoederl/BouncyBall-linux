@@ -9,11 +9,9 @@
 Drawable::Drawable()
 {
 	posVec = glm::vec3(0.0f);
-    rotMat = glm::mat4(1.0f);
-    scaleMat = glm::scale(glm::mat4(1.0), glm::vec3(1.0));
-    modelMat = glm::mat4(1.0f);
-	active = true;
-    updateModelMat = true;
+    model = glm::mat4(1.0f);
+	drawEnabled = true;
+    updateModel = true;
 
     glGenVertexArrays(1, &vertexArrayID);
     glGenVertexArrays(1, &uvArrayID);
@@ -33,11 +31,11 @@ Drawable::~Drawable()
 }
 
 const glm::mat4 & Drawable::getModel(){
-    if(updateModelMat){
-        modelMat = glm::translate(rotMat*scaleMat, posVec);
-        updateModelMat = false;
+    if(updateModel){
+        model = glm::translate(glm::mat4(1.0f), posVec);
+        updateModel = false;
     }
-    return modelMat;
+    return model;
 }
 
 
@@ -47,63 +45,14 @@ const glm::vec3 & Drawable::getPosition() const {
 
 void Drawable::setPosition(const glm::vec3 & pos) {
     this->posVec = pos;
-    updateModelMat = true;
-}
-
-const glm::mat4 & Drawable::getRotation() const{
-    return this->rotMat;
-}
-
-void Drawable::setRotation(const glm::mat4 & rot) {
-    this->rotMat = rot;
-    updateModelMat = true;
-}
-
-const glm::mat4 & Drawable::getScaling() const{
-    return this->scaleMat;
-}
-
-void Drawable::setScaling(const glm::mat4 & scale) {
-    this->scaleMat = scale;
-    updateModelMat = true;
+    updateModel = true;
 }
 
 //returns if the object is active
-bool Drawable::isActive() const{
-	return active;
+bool Drawable::isDrawEnabled() const{
+	return drawEnabled;
 }
 
-void Drawable::setActive(const bool active){
-    this->active = active;
-}
-
-
-GLuint Drawable::getTexture() const
-{
-    return texture;
-}
-
-void Drawable::setTexture(const GLuint texture)
-{
-    this->texture = texture;
-}
-
-GLuint Drawable::getTextureID() const
-{
-    return textureID;
-}
-
-void Drawable::setTextureID(const GLuint textureID)
-{
-    this->textureID = textureID;
-}
-
-GLuint Drawable::getMatrixID() const
-{
-    return matrixID;
-}
-
-void Drawable::setMatrixID(const GLuint matrixID)
-{
-    this->matrixID = matrixID;
+void Drawable::setDrawEnable(const bool active){
+    this->drawEnabled = active;
 }

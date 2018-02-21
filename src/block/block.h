@@ -23,18 +23,11 @@ public:
     //if a collision occurs, calculate its effect --> depends on block type either player dies or
     //virtual void doCollision(Ball& object) = 0;
 
+    void setPosition(const glm::vec3 & post) override;
     //returns the width of the block
-    GLfloat getWidth() const;
-	//sets the width of the block
-	void setWidth(const GLfloat width);
-    //returns the height of the block
-    GLfloat getHeight() const;
-	//sets the height of the block
-	void setHeight(const GLfloat height);
-    GLfloat getDepth() const;
-	void setDepth(const GLfloat depth);
+    const glm::vec3 & getSize() const;
 	void setSize(const GLfloat width, const GLfloat height, const GLfloat depth);
-	void setSize(glm::vec3 size);
+	void setSize(const glm::vec3 & size);
     //return the center of the block, mostly useful for collision detection
 	virtual const glm::vec3 & getCenter() const;
 
@@ -44,11 +37,8 @@ public:
 protected:
 	void genVertexBufferData();
 	//width of the block
-	GLfloat width;
-	//height of the block
-	GLfloat height;
-	//deapth of the block
-	GLfloat depth;
+	glm::vec3 size;
+	glm::vec3 center;
 
 	glm::vec3 reflection;
 

@@ -22,8 +22,10 @@ public:
     //should override to compute on a kollion
     //virtual void doCollision(Ball& object) = 0;
 
-	//standart draw funtion, overide for advanced drawing (animations)
+	//standard draw function, override for advanced drawing (animations)
 	virtual void draw(const glm::mat4 & view, const glm::mat4 & projection);
+
+	const glm::mat4 & getModel() override;
 
 	const glm::vec3 & getReflection() const;
     void setReflection(const glm::vec3 & reflection);
@@ -42,19 +44,15 @@ public:
     bool isRollingEnabled() const;
 	void setRollingEnabled(const bool rolling);
 
+	GLfloat getAngle() const;
+
 protected:
-    void genVertexBufferData();
+    virtual void genVertexBufferData();
 
     AnimationRot rolling;
 
-	glm::vec3 reflection;
-
-	//last x position for angle calculation
-	GLfloat x_last;
-	//angle
-	bool rotationEnabled;
-	//radius
-	GLfloat radius;
+	glm::mat4 scaling;
+	glm::mat4 rotation;
 
 	//on floor flag
 	bool onFloor;
@@ -62,6 +60,15 @@ protected:
 
     std::array<GLfloat, VERTICES_PER_BALL * 3> vertexBufferData;
 	std::array<GLfloat, VERTICES_PER_BALL * 2> uvBufferData;
+
+private:
+	//last x position for angle calculation
+	GLfloat x_last;
+
+	//radius
+	GLfloat radius;
+
+	glm::vec3 reflection;
 };
 
 #endif
