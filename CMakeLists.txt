@@ -12,10 +12,11 @@ add_executable(BouncyBall
         src/animation/animation_bounce.cpp src/animation/animation_bounce.h
         src/ball/ball.cpp src/ball/ball.h
         src/block/block.cpp src/block/block.h
-        src/base/texture.cpp src/base/texture.h)
+        src/base/texture.cpp src/base/texture.h
+        src/lib/stb_image.h
+        )
 
 target_include_directories(BouncyBall PUBLIC src/)
 target_link_libraries(BouncyBall glfw)
 target_link_libraries(BouncyBall GLEW)
-target_link_libraries(BouncyBall SOIL)
 target_link_libraries(BouncyBall GL)

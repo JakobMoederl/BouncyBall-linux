@@ -7,6 +7,7 @@
 #include <GL/gl.h>
 
 //stb image libr from https://github.com/nothings/stb/blob/master/stb_image.h
+#define STB_IMAGE_IMPLEMENTATION
 #include "lib/stb_image.h"
 
 #include "texture.h"
