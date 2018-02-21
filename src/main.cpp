@@ -17,6 +17,11 @@
 #include "ball/ball.h"
 #include "block/block.h"
 
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+
+int scr_width=640;
+int scr_height=480;
+
 int main( void )
 {
 	// Initialise GLFW
@@ -34,7 +39,7 @@ int main( void )
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Open a window and create its OpenGL context
-	GLFWwindow *window = glfwCreateWindow( 1024, 768, "Tutorial 02 - Red triangle", NULL, NULL);
+	GLFWwindow *window = glfwCreateWindow( scr_width, scr_height, "Simley Wars - a smiple openGL game by Jakob Möderl", NULL, NULL);
 	if( window == NULL ){
 		fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
 		getchar();
@@ -42,6 +47,7 @@ int main( void )
 		return -1;
 	}
 	glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	// Initialize GLEW
 	glewExperimental = true; // Needed for core profile
@@ -63,23 +69,32 @@ int main( void )
 	// Accept fragment if it closer to the camera than the former one
 	glDepthFunc(GL_LESS);
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    //glEnable(GL_CULL_FACE);
+    //glCullFace(GL_FRONT);
+
 	// Create and compile our GLSL program from the shaders
 	GLuint programID = LoadShaders("shader/TransformVertexShader.vertexshader", "shader/TextureFragmentShader.fragmentshader");
-
-	// Get a handle for our "MVP" uniform
+    // Get a handle for our "MVP" uniform
 	GLuint MatrixID = glGetUniformLocation(programID, "MVP");
 
-	Block block=Block();
-	block.setTextureID(0);
-	block.setTexture(0);
+    GLuint TextureID = glGetUniformLocation(programID, "myTextureSampler");
+    GLuint textureBall = loadTexture("pics/ball.tga");
+    GLuint textureStone = loadTexture("pics/StoneBlock.tga");
+
+    Block block=Block();
+	block.setTextureID(TextureID);
+	block.setTexture(textureStone);
 	block.setMatrixID(MatrixID);
-	block.setSize(2.0f, 1.0f, 2.0f);
+    block.setSize(2.0f, 1.0f, 2.0f);
 	block.setPosition(glm::vec3(-1.0f, 0.0f, 0.0f));
     block.setActive(true);
 
 	Ball ball=Ball();
-	ball.setTextureID(0);
-	ball.setTexture(0);
+	ball.setTextureID(TextureID);
+	ball.setTexture(textureBall);
 	ball.setMatrixID(MatrixID);
 	ball.setRadius(0.5f);
 	ball.setPosition(glm::vec3(0.0f, 1.5f, 0.5f));
@@ -88,10 +103,10 @@ int main( void )
     ball.setRollingEnabled(true);
 
 	// Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
+	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), (GLfloat)scr_width / (GLfloat)scr_height, 0.1f, 100.0f);
 	// Camera matrix
 	glm::mat4 View       = glm::lookAt(
-			glm::vec3(3, 2, 10), // Camera is at (4,3,3), in World Space
+			glm::vec3(4, -3, 10), // Camera is at (4,3,3), in World Space
 			glm::vec3(0.0f,0.0f,0.0f), // and looks at the origin
 			glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
 	);
@@ -131,5 +146,15 @@ int main( void )
 	glfwTerminate();
 
 	return 0;
+}
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    // make sure the viewport matches the new window dimensions; note that width and
+    // height will be significantly larger than specified on retina displays.
+    glViewport(0, 0, width, height);
+
+    scr_width = width;
+    scr_height = height;
 }
 

@@ -31,10 +31,10 @@ void Block::draw(const glm::mat4 & view, const glm::mat4 & projection){
     glUniformMatrix4fv(matrixID, 1, GL_FALSE, &mvp[0][0]);
 
     // Bind our texture in Texture Unit 0
-    //glActiveTexture(GL_TEXTURE0);
-    //glBindTexture(GL_TEXTURE_2D, texture);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
     // Set our "myTextureSampler" sampler to use Texture Unit 0
-    //glUniform1i(textureID, 0);
+    glUniform1i(textureID, 0);
 
     // 1rst attribute buffer : vertices
     glEnableVertexAttribArray(0);
