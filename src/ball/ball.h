@@ -3,7 +3,7 @@
 
 #include <array>
 #include "base/moveable.h"
-#include "animation/animation.h"
+#include "animation/animation_rot.h"
 #include "block/block.h"
 
 #define VERTICES_PER_BALL (1*2*3) //1 side(rectangle) which consists of two triangles with 3 vertices each.
@@ -55,8 +55,7 @@ public:
 protected:
     virtual void genVertexBufferData();
 
-    Animation rollingAnimation;
-	Animation deathAnimation;
+    AnimationRot rollingAnimation;
 
 
     std::array<GLfloat, VERTICES_PER_BALL * 3> vertexBufferData;

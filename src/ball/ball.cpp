@@ -19,10 +19,8 @@ Ball::Ball()
     lastPos = getPosition();
 	setRadius(0.3f);
 
-    rollingAnimation = Animation(0);
+    rollingAnimation = AnimationRot(0, 1/radius);
     rollingAnimation.active = true;
-    rollingAnimation.rotSpeed = 1/radius;
-    rollingAnimation.rotFunction = Animation::linearRotXSpace;
 
     genVertexBufferData();
 }
@@ -128,7 +126,7 @@ void Ball::genVertexBufferData() {
 void Ball::move(const GLfloat time){
     lastPos = getPosition();
 	Moveable::move(time);
-    rollingAnimation.doStep(time, getPosition() - lastPos);
+    rollingAnimation.doStep((getPosition() - lastPos)[0]);
     updateModel = true;
 	if(isOnFloor()
        && (getPosition()[0] < floorBlock->getPosition()[0] || getPosition()[0] > floorBlock->getPosition()[0] + floorBlock->getSize()[0])){
@@ -321,7 +319,7 @@ void Ball::setRadius(const GLfloat radius)
 {
 	this->radius = radius;
     updateModel = true;
-    this->rollingAnimation.rotSpeed = 1/radius;
+    this->rollingAnimation.amplitude = 1/radius;
 }
 
 //gets the radius of the ball
@@ -361,9 +359,7 @@ inline const glm::vec3 &Ball::getCenter() const {
 const glm::mat4 &Ball::getModel() {
     if(updateModel){
 		//model  = translation * rotation * scaling of model, rolling animation and death animation. thats a lot of matrixes for each ball.
-        model = glm::translate(glm::mat4(1.0f), getPosition()) * deathAnimation.getRotation()
-                * rollingAnimation.getRotation() * deathAnimation.getRotation()
-                * glm::scale(glm::mat4(1.0f), glm::vec3(radius, radius, 0.0f)) * deathAnimation.getScale();
+        model = glm::translate(glm::mat4(1.0f), getPosition()) * rollingAnimation.mat * glm::scale(glm::mat4(1.0f), glm::vec3(radius, radius, 0.0f));
     }
     return model;
 }
