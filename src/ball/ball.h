@@ -3,7 +3,7 @@
 
 #include <array>
 #include "base/moveable.h"
-#include "animation/animation_rot.h"
+#include "animation/animation.h"
 #include "block/block.h"
 
 #define VERTICES_PER_BALL (1*2*3) //1 side(rectangle) which consists of two triangles with 3 vertices each.
@@ -51,13 +51,12 @@ public:
     bool isRollingEnabled() const;
 	void setRollingEnabled(const bool rolling);
 
-	GLfloat getAngle() const;
-
     glm::vec3 reflection;
 protected:
     virtual void genVertexBufferData();
 
-    AnimationRot rolling;
+    Animation rollingAnimation;
+	Animation deathAnimation;
 
 
     std::array<GLfloat, VERTICES_PER_BALL * 3> vertexBufferData;
@@ -69,7 +68,7 @@ private:
     Block* floorBlock;
 
 	//last x position for angle calculation
-	GLfloat x_last;
+	glm::vec3 lastPos;
 
 	//radius
 	GLfloat radius;

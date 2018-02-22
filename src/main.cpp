@@ -84,7 +84,7 @@ int main( void )
     GLuint textureStone = loadTexture("pics/StoneBlock.tga");
 
     Block block=Block();
-    block.reflection=glm::vec3(1.0f);
+    block.reflection=glm::vec3(1.0f, 0.5f, 0.0f);
 	block.textureID = TextureID;
 	block.texture = textureStone;
 	block.matrixID = MatrixID;
@@ -98,8 +98,8 @@ int main( void )
     ball.texture = textureBall;
     ball.matrixID = MatrixID;
     ball.setRadius(.3f);
-    ball.setPosition(glm::vec3(+3.4f, -.95f, -0.5f));
-    ball.setSpeed(glm::vec3(-1.0f, 0.3f, 0.0f));
+    ball.setPosition(glm::vec3(+1.25f, -1.5f, -0.5f));
+    ball.setSpeed(glm::vec3(-0.0f, 0.5f, 0.0f));
     ball.setDrawEnable(true);
     ball.setRollingEnabled(true);
 

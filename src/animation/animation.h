@@ -11,36 +11,50 @@
 
 class Animation{
 private:
-    bool active;
-    //total animation length. set to 0 for never ending animations like rolling balls
-    float length;
     //general amplitude for the animation. could be max bounce value, or rotation speed ect.
-    float amplitude;
-    //current animation status (time, angle, ect)
+    //animation time
     float duration;
-    glm::mat4 mat;
+
+    //for these function a time of 1 means the whole animation length has passed
+    glm::mat4 scale;
+    glm::mat4 trans;
+    glm::mat4 rot;
+
+    glm::vec3 spaceDiff;
 
 public:
     Animation();
     explicit Animation(const float length);
-    Animation(const float length, const float animation);
     ~Animation();
 
-    void doStep(const float stepSize);
-    void start();
+    bool doStep(const float timeDiff, const glm::vec3 & spaceDiff);
     void reset();
 
-    const glm::mat4 & getMatrix() const;
-    void setMatrix(const glm::mat4 & mat);
-    float getLength() const;
-    void setLength(const float length);
-    float getAmplitude() const;
-    void setAmplitude(const float amplitude);
+    const glm::mat4 & getScale() const;
+    const glm::mat4 & getRotation() const;
+    const glm::mat4 & getTranslation() const;
+    glm::vec3 scaleAmpl;
+    glm::vec3 rotAxis;
+    float rotSpeed;
+    glm::vec3 transAmpl;
+
+    //total animation length (time). set to 0 for never ending animations like rolling balls
+    float length;
+    bool active;
+
     float getDuration() const;
     void setDuration(const float duration);
-    bool isActive() const;
-    void setActive(const bool isActive);
 
+
+    const glm::mat4 (*rotFunction)(const float timeDiff, const glm::vec3 & spaceDiff, glm::vec3 & rotAxis, float rotSpeed);
+    const glm::vec3 (*scaleFunction)(const float timeDiff, const glm::vec3 & spaceDiff, glm::vec3 & amplitude);
+    const glm::vec3 (*transFunction)(const float timeDiff, const glm::vec3 & spaceDiff, glm::vec3 & amplitude);
+    //static function to calculate different for animation paths
+
+    static const glm::vec3 linearTime(const float timeDiff, const glm::vec3 & spaceDiff, glm::vec3 & amplitude);
+    static const glm::vec3 linearTime2p(const float timeDiff, const glm::vec3 & spaceDiff, glm::vec3 & amplitude);
+
+    static const glm::mat4 linearRotXSpace(const float timeDiff, const glm::vec3 & spaceDiff, glm::vec3 & rotAxis, float rotSpeed);
 };
 
 #endif //BOUNCYBALL_LINUX_ANIMATION_H

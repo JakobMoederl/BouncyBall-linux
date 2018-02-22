@@ -10,10 +10,7 @@ add_executable(BouncyBall
         src/base/drawable.cpp src/base/drawable.h
         src/base/moveable.cpp src/base/moveable.h
         src/animation/animation.cpp src/animation/animation.h
-        src/animation/animation_rot.cpp src/animation/animation_rot.h
-        src/animation/animation_bounce.cpp src/animation/animation_bounce.h
         src/ball/ball.cpp src/ball/ball.h
-        #src/ball/good_smiley.cpp src/ball/good_smiley.h
         #src/ball/enemy.cpp src/ball/enemy.h
         #src/ball/player.cpp src/ball/player.h
         src/block/block.cpp src/block/block.h

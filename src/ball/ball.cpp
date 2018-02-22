@@ -11,15 +11,18 @@
 //standardkonstrucktor
 Ball::Ball()
 {
+    setPosition(glm::vec3(0.0f));
 	onFloor = false;
     floorBlock = NULL;
     setDrawEnable(true);
     reflection = glm::vec3(0.8f, 0.6f, 0.0f);
-
-	x_last = getPosition()[0];
+    lastPos = getPosition();
 	setRadius(0.3f);
 
-	rolling = AnimationRot(0.0f, 1/radius);
+    rollingAnimation = Animation(0);
+    rollingAnimation.active = true;
+    rollingAnimation.rotSpeed = 1/radius;
+    rollingAnimation.rotFunction = Animation::linearRotXSpace;
 
     genVertexBufferData();
 }
@@ -123,10 +126,10 @@ void Ball::genVertexBufferData() {
 
 //moves the ball (with rotation) and looks if it is still on a floor
 void Ball::move(const GLfloat time){
+    lastPos = getPosition();
 	Moveable::move(time);
-	rolling.doStep(getPosition()[0] - x_last);
+    rollingAnimation.doStep(time, getPosition() - lastPos);
     updateModel = true;
-    x_last = getPosition()[0];
 	if(isOnFloor()
        && (getPosition()[0] < floorBlock->getPosition()[0] || getPosition()[0] > floorBlock->getPosition()[0] + floorBlock->getSize()[0])){
 		this->onFloor = false;
@@ -318,7 +321,7 @@ void Ball::setRadius(const GLfloat radius)
 {
 	this->radius = radius;
     updateModel = true;
-    this->rolling.setAmplitude(1/radius);
+    this->rollingAnimation.rotSpeed = 1/radius;
 }
 
 //gets the radius of the ball
@@ -343,26 +346,24 @@ bool Ball::isOnFloor() const
 
 //sets if the rotation is enabled or not
 void Ball::setRollingEnabled(bool enabled) {
-    this->rolling.setActive(enabled);
+    this->rollingAnimation.active = enabled;
 }
 
 //gets if rotation is enabled for this ball
 bool Ball::isRollingEnabled() const{
-	return rolling.isActive();
+	return rollingAnimation.active;
 }
 
 inline const glm::vec3 &Ball::getCenter() const {
     return getPosition();
 }
 
-float Ball::getAngle() const {
-    return rolling.getDuration();
-}
-
 const glm::mat4 &Ball::getModel() {
     if(updateModel){
-		//model  = translation * rotation * scaling
-        model = glm::translate(glm::mat4(1.0f), getPosition()) * rolling.getMatrix() * glm::scale(glm::mat4(1.0f), glm::vec3(radius, radius, 0.0f));
+		//model  = translation * rotation * scaling of model, rolling animation and death animation. thats a lot of matrixes for each ball.
+        model = glm::translate(glm::mat4(1.0f), getPosition()) * deathAnimation.getRotation()
+                * rollingAnimation.getRotation() * deathAnimation.getRotation()
+                * glm::scale(glm::mat4(1.0f), glm::vec3(radius, radius, 0.0f)) * deathAnimation.getScale();
     }
     return model;
 }
