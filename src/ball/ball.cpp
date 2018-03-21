@@ -128,10 +128,15 @@ void Ball::move(const GLfloat time){
 	Moveable::move(time);
     rollingAnimation.doStep((getPosition() - lastPos)[0]);
     updateModel = true;
-	if(isOnFloor()
+	checkOnFloor();
+}
+
+bool Ball::checkOnFloor() {
+    if(isOnFloor()
        && (getPosition()[0] < floorBlock->getPosition()[0] || getPosition()[0] > floorBlock->getPosition()[0] + floorBlock->getSize()[0])){
-		this->onFloor = false;
-	}
+        this->onFloor = false;
+    }
+    return this->onFloor;
 }
 
 bool Ball::checkCollision(const Block & object) const{
@@ -157,13 +162,34 @@ bool Ball::checkCollision(const Ball &object) const {
 }
 
 
+void Ball::bounceOffBall(Ball &ball) {
+    glm::vec3 speedDiff = this->speed - ball.speed;
+    GLfloat anglePos = atanf((ball.getPosition()[1] - getPosition()[1]) / (ball.getPosition()[0] - getPosition()[0]));
+    if(ball.getPosition()[0] - getPosition()[0] < 0) anglePos += M_PI;    //correct atan function if in 2nd or 3th quadrant
+    // position correction not necessary because either the ball or the opponent dies and vanishes.
+    // setPositionX(edge[0] - radius*1.001f * cos(anglePos));
+    // setPositionY(edge[1] - radius*1.001f * sin(anglePos));
+
+    //calc new speed with angle of reflection = angle of impact (relative to angle between ball and edge)
+    GLfloat angleSpeed = atanf(speedDiff[1] / speedDiff[0]);
+    if(speedDiff[0] < 0) angleSpeed += M_PI; //correct the angle if necessary
+    angleSpeed = anglePos + M_PI + (anglePos - angleSpeed); //calculate new angle of speed vector
+    //calculate total speed
+    GLfloat totalSpeed = glm::length(speedDiff) * (pow(cosf(angleSpeed),2)*reflection[0]*ball.reflection[0] + pow(sinf(angleSpeed), 2)*reflection[1]*ball.reflection[1]);
+    speed[0] = ball.getSpeed()[0] + totalSpeed*cosf(angleSpeed);
+    speed[1] = ball.getSpeed()[1] + totalSpeed*sinf(angleSpeed);
+
+    printf("speed after collision: %f\n", glm::length(speed));
+}
+
+
 void Ball::doCollisionBounce(Block &block) {
-    enum CollisionEdge collisionEdge = getCollisionEdge(block);
+    CollisionEdge collisionEdge = getCollisionEdge(block);
     bounceOffEdge(collisionEdge, block);
 }
 
-enum CollisionEdge Ball::getCollisionEdge(const Block &block) {
-    enum CollisionEdge collisionEdge = COL_NONE;
+CollisionEdge Ball::getCollisionEdge(const Block &block) {
+    CollisionEdge collisionEdge = COL_NONE;
     glm::vec3 edge;
     glm::vec3 speedDiff;
     glm::vec3 ballCenter = getCenter(); //could save syscalls, but maybe the compiler optimizes it anyways
@@ -247,7 +273,7 @@ enum CollisionEdge Ball::getCollisionEdge(const Block &block) {
     return collisionEdge;
 }
 
-void Ball::bounceOffEdge(const enum CollisionEdge edgeEnum, Block &block) {
+void Ball::bounceOffEdge(const CollisionEdge edgeEnum, Block &block) {
     float anglePos;
     float angleSpeed;
     float totalSpeed;

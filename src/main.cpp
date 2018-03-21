@@ -108,7 +108,7 @@ int main( void )
     ball2.texture = textureBall;
     ball2.matrixID = MatrixID;
     ball2.setRadius(.2f);
-    ball2.setPosition(glm::vec3(+3.0f, 0.9f, -0.2f));
+    ball2.setPosition(glm::vec3(+3.0f, 0.9f, -0.5f));
     ball2.setSpeed(glm::vec3(0.0f));
     ball2.setDrawEnable(true);
     ball2.setRollingEnabled(false);
@@ -140,6 +140,9 @@ int main( void )
             lastCollisionBlock = collisionBlock;
         }
         collisionBall=ball.checkCollision(ball2);
+		if(collisionBall){
+			ball.bounceOffBall(ball2);
+		}
         if(collisionBall!=lastCollisionBall) {
             printf("%s\n", collisionBall ? "collision with ball!" : "No collision with ball");
             lastCollisionBall = collisionBall;

@@ -7,9 +7,9 @@
 #include "block/block.h"
 
 #define VERTICES_PER_BALL (1*2*3) //1 side(rectangle) which consists of two triangles with 3 vertices each.
-enum CollisionEdge{
+typedef enum collision_edge{
 	COL_NONE=0, COL_BOTTOM, COL_TOP, COL_LEFT, COL_RIGHT, COL_TOP_LEFT, COL_TOP_RIGHT, COL_BOTTOM_LEFT, COL_BOTTOM_RIGHT
-};
+} CollisionEdge;
 
 class Ball : public Moveable
 {
@@ -22,7 +22,9 @@ public:
 	virtual void draw(const glm::mat4 & view, const glm::mat4 & projection);
 
 	//advanced move function which also calculates the ange the ball has to rotate 
-	void move(const GLfloat time) override;
+	void move(const GLfloat time);
+
+	virtual bool checkOnFloor();
 
 	//check for collision with a ball object
 	bool checkCollision(const Block& object) const;
@@ -31,8 +33,9 @@ public:
 
 	//standard bouncy collision.
 	void doCollisionBounce(Block& block);
-	enum CollisionEdge getCollisionEdge(const Block& block);
-	void bounceOffEdge(const enum CollisionEdge edge, Block& block);
+    void bounceOffBall(Ball& ball);
+	CollisionEdge getCollisionEdge(const Block& block);
+	void bounceOffEdge(const CollisionEdge edge, Block& block);
 
 	//get the model matrix (for draw function)
 	const glm::mat4 & getModel() override;
