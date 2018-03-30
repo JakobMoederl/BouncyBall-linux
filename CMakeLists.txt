@@ -13,7 +13,7 @@ add_executable(BouncyBall
         src/animation/animation_rot.cpp src/animation/animation_rot.h
         src/animation/animation_bounce.cpp src/animation/animation_bounce.h
         src/ball/ball.cpp src/ball/ball.h
-        #src/ball/enemy.cpp src/ball/enemy.h
+        src/ball/enemy.cpp src/ball/enemy.h
         #src/ball/player.cpp src/ball/player.h
         src/block/block.cpp src/block/block.h
         #src/block/spike_block.cpp src/block/spike_block.h

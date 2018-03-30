@@ -22,6 +22,8 @@ Ball::Ball()
     rollingAnimation = AnimationRot(0, 1/radius);
     rollingAnimation.active = true;
 
+    floating = true;
+    solid = true;
     genVertexBufferData();
 }
 
@@ -140,6 +142,7 @@ bool Ball::checkOnFloor() {
 }
 
 bool Ball::checkCollision(const Block & object) const{
+
     static glm::vec3 p;
     //p = distance between center of ball nearest box edge
     p = glm::clamp(this->getCenter() - object.getCenter(), -glm::abs(object.getSize()/2.0f), glm::abs(object.getSize()/2.0f));

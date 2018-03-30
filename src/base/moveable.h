@@ -23,6 +23,13 @@ public:
     const glm::vec3 & getAcceleration() const;
 	void setAcceleration(const glm::vec3 & acceleration);
 
+	const GLfloat getSpeedX() const;
+	const GLfloat getSpeedY() const;
+	const GLfloat getSpeedZ() const;
+
+	void setSpeedX(GLfloat speedX);
+	void setSpeedY(GLfloat speedY);
+	void setSpeedZ(GLfloat speedZ);
 
 protected:
 	glm::vec3 speed;

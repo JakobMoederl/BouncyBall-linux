@@ -14,8 +14,9 @@
 
 #include "base/shader.h"
 #include "base/texture.h"
-#include "ball/ball.h"
 #include "block/block.h"
+#include "ball/ball.h"
+#include "ball/enemy.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -82,6 +83,7 @@ int main( void )
     GLuint TextureID = glGetUniformLocation(programID, "myTextureSampler");
     GLuint textureBall = loadTexture("pics/ball.tga");
     GLuint textureStone = loadTexture("pics/StoneBlock.tga");
+	GLuint textureEnemy = loadTexture("pics/enemy.tga");
 
     Block block=Block();
     block.reflection=glm::vec3(1.0f, 0.5f, 0.0f);
@@ -112,6 +114,18 @@ int main( void )
     ball2.setSpeed(glm::vec3(0.0f));
     ball2.setDrawEnable(true);
     ball2.setRollingEnabled(false);
+
+    Enemy e=Enemy();
+    e.startSpeed = glm::vec3(1.0f, 0.0f, 0.0f);
+    e.startPosition = glm::vec3(0.0f, 0.1f, -0.5f);
+    e.boundUpper = glm::vec3(2.0f, 1.0f, 1.0f);
+    e.boundLower = glm::vec3(-1.0f, -1.0f, -1.0f);
+    e.reset();
+	e.setRadius(.3f);
+	e.setDrawEnable(true);
+	e.setRollingEnabled(true);
+	e.textureID = TextureID;
+	e.texture = textureEnemy;
 
 	// Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
 	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), (GLfloat)INITIAL_SCR_RES_X / (GLfloat)INITIAL_SCR_RES_Y, 0.1f, 100.0f);
@@ -149,6 +163,7 @@ int main( void )
         }
 
         ball.move(0.01f);
+        e.move(0.01f);
 		// Clear the screen
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -158,6 +173,7 @@ int main( void )
 		block.draw(View, Projection);
 		ball.draw(View, Projection);
         ball2.draw(View, Projection);
+		e.draw(View, Projection);
 
 		// Swap buffers
 		glfwSwapBuffers(window);

@@ -27,12 +27,12 @@ public:
 	virtual bool checkOnFloor();
 
 	//check for collision with a ball object
-	bool checkCollision(const Block& object) const;
+	virtual bool checkCollision(const Block& object) const;
 	//returns true if the Ball has a kollision with the other ball
-	bool checkCollision(const Ball& object) const;
+	virtual bool checkCollision(const Ball& object) const;
 
 	//standard bouncy collision.
-	void doCollisionBounce(Block& block);
+	virtual void doCollisionBounce(Block& block);
     void bounceOffBall(Ball& ball);
 	CollisionEdge getCollisionEdge(const Block& block);
 	void bounceOffEdge(const CollisionEdge edge, Block& block);
@@ -55,6 +55,8 @@ public:
 	void setRollingEnabled(const bool rolling);
 
     glm::vec3 reflection;
+    bool floating;
+    bool solid;
 protected:
     virtual void genVertexBufferData();
 
